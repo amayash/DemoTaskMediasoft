@@ -1,7 +1,7 @@
-package com.mediasoft.warehouse.util.error;
+package com.mediasoft.warehouse.error;
 
-import com.mediasoft.warehouse.service.exception.ProductNotFoundException;
-import com.mediasoft.warehouse.util.validation.ValidationException;
+import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
+import com.mediasoft.warehouse.error.exception.ValidationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @ControllerAdvice(annotations = RestController.class)
 public class AdviceController {
     /**
-     * Обработка исключений ProductNotFoundException, ValidationException,
+     * Обработка исключений ProductNotFoundException, ValidationException
      * jakarta.validation.ValidationException и IllegalArgumentException.
      *
      * @param e Исключение, которое было выброшено.

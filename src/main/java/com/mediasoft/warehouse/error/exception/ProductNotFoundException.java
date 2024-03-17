@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.service.exception;
+package com.mediasoft.warehouse.error.exception;
 
 import com.mediasoft.warehouse.model.Product;
 

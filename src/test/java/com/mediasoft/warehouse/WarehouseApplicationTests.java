@@ -5,8 +5,7 @@ import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.ProductCategory;
 import com.mediasoft.warehouse.repository.ProductRepository;
 import com.mediasoft.warehouse.service.ProductService;
-import com.mediasoft.warehouse.service.exception.ProductNotFoundException;
-import com.mediasoft.warehouse.util.validation.ValidationException;
+import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -67,29 +66,9 @@ class WarehouseApplicationTests {
         SaveProductDto product = createProductDto();
         Product createdProduct = productService.createProduct(product);
 
-        Assertions.assertEquals(product.getName(), createdProduct.getName());
-        Assertions.assertEquals(product.getArticle(), createdProduct.getArticle());
-        Assertions.assertEquals(product.getDescription(), createdProduct.getDescription());
-        Assertions.assertEquals(product.getCategory(), createdProduct.getCategory());
-        Assertions.assertEquals(product.getPrice(), createdProduct.getPrice());
-        Assertions.assertEquals(product.getQuantity(), createdProduct.getQuantity());
+        assertProductEquals(product, createdProduct);
         Assertions.assertEquals(createdProduct.getCreatedDate(),
                 createdProduct.getLastQuantityChangeDate());
-    }
-
-    /**
-     * Тест на создание невалидного товара.
-     */
-    @Test
-    void testCreateInvalidProduct() {
-        SaveProductDto product = new SaveProductDto();
-        product.setName(" ");
-        product.setArticle(" ");
-        product.setDescription(" ");
-        product.setCategory(ProductCategory.BOOKS);
-        product.setPrice(0.0);
-        product.setQuantity(-1);
-        Assertions.assertThrows(ValidationException.class, () -> productService.createProduct(product));
     }
 
     /**
@@ -112,38 +91,11 @@ class WarehouseApplicationTests {
         Thread.sleep(1000);
         Product updatedProduct = productService.updateProduct(createdProduct.getId(), updatedProductDto);
 
-        Assertions.assertEquals(updatedProductDto.getName(), updatedProduct.getName());
-        Assertions.assertEquals(updatedProductDto.getArticle(), updatedProduct.getArticle());
-        Assertions.assertEquals(updatedProductDto.getDescription(), updatedProduct.getDescription());
-        Assertions.assertEquals(updatedProductDto.getCategory(), updatedProduct.getCategory());
-        Assertions.assertEquals(updatedProductDto.getPrice(), updatedProduct.getPrice());
-        Assertions.assertEquals(updatedProductDto.getQuantity(), updatedProduct.getQuantity());
+        assertProductEquals(updatedProductDto, updatedProduct);
         Assertions.assertNotEquals(
                 createdProduct.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS),
                 updatedProduct.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS)
         );
-    }
-
-    /**
-     * Тест на невалидное изменение товара.
-     *
-     * @throws InterruptedException если возникает ошибка при остановке потока.
-     */
-    @Test
-    void testUpdateInvalidProduct() throws InterruptedException {
-        SaveProductDto originalProduct = createProductDto();
-        Product createdProduct = productService.createProduct(originalProduct);
-
-        SaveProductDto updatedProductDto = createProductDto();
-        updatedProductDto.setName(" ");
-        updatedProductDto.setArticle(" ");
-        updatedProductDto.setDescription(" ");
-        updatedProductDto.setCategory(ProductCategory.BOOKS);
-        updatedProductDto.setPrice(0.0);
-        updatedProductDto.setQuantity(-1);
-        Thread.sleep(1000);
-        Assertions.assertThrows(ValidationException.class, () ->
-                productService.updateProduct(createdProduct.getId(), updatedProductDto));
     }
 
     /**
@@ -153,7 +105,15 @@ class WarehouseApplicationTests {
     void testGetProduct() {
         Product createdProduct = productService.createProduct(createProductDto());
         Product product = productService.getProductById(createdProduct.getId());
-        assertProductEquals(createdProduct, product);
+        assertProductEquals(new SaveProductDto(createdProduct), product);
+        Assertions.assertEquals(
+                createdProduct.getCreatedDate().truncatedTo(ChronoUnit.SECONDS),
+                product.getCreatedDate().truncatedTo(ChronoUnit.SECONDS)
+        );
+        Assertions.assertEquals(
+                createdProduct.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS),
+                product.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS)
+        );
     }
 
     /**
@@ -218,25 +178,18 @@ class WarehouseApplicationTests {
     }
 
     /**
-     * Проверка, что переданный товар соответствует ожидаемым значениям по всем полям.
+     * Проверка, что переданный товар соответствует ожидаемым значениям по полям:
+     * название, артикул, описание, категория, цена, количество.
      *
      * @param expected Ожидаемый товар.
      * @param actual   Фактический товар.
      */
-    private void assertProductEquals(Product expected, Product actual) {
+    private void assertProductEquals(SaveProductDto expected, Product actual) {
         Assertions.assertEquals(expected.getName(), actual.getName());
         Assertions.assertEquals(expected.getArticle(), actual.getArticle());
         Assertions.assertEquals(expected.getDescription(), actual.getDescription());
         Assertions.assertEquals(expected.getCategory(), actual.getCategory());
         Assertions.assertEquals(expected.getPrice(), actual.getPrice());
         Assertions.assertEquals(expected.getQuantity(), actual.getQuantity());
-        Assertions.assertEquals(
-                expected.getCreatedDate().truncatedTo(ChronoUnit.SECONDS),
-                actual.getCreatedDate().truncatedTo(ChronoUnit.SECONDS)
-        );
-        Assertions.assertEquals(
-                expected.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS),
-                actual.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS)
-        );
     }
 }

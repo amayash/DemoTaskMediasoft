@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.util.validation;
+package com.mediasoft.warehouse.error.exception;
 
 import java.util.Set;
 

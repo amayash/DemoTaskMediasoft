@@ -45,7 +45,7 @@ public class Product {
     /**
      * Описание товара.
      */
-    @Column(length = 512)
+    @Column(length = 512, nullable = false)
     @NonNull
     private String description;
 
@@ -75,7 +75,7 @@ public class Product {
      * Дата последнего изменения количества товара.
      */
     @LastModifiedDate
-    @Column(name = "last_quantity_change_date")
+    @Column(name = "last_quantity_change_date", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastQuantityChangeDate;
 

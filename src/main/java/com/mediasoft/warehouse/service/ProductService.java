@@ -3,8 +3,7 @@ package com.mediasoft.warehouse.service;
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
-import com.mediasoft.warehouse.service.exception.ProductNotFoundException;
-import com.mediasoft.warehouse.util.validation.ValidatorUtil;
+import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,6 @@ import java.util.UUID;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ValidatorUtil validatorUtil;
 
     /**
      * Получить все товары.
@@ -65,7 +63,6 @@ public class ProductService {
      */
     @Transactional
     public Product createProduct(SaveProductDto saveProductDto) {
-        validatorUtil.validate(saveProductDto);
         return productRepository.save(new Product(saveProductDto));
     }
 
@@ -106,7 +103,6 @@ public class ProductService {
             existingProduct.setQuantity(updatedProductDto.getQuantity());
         }
 
-        validatorUtil.validate(new SaveProductDto(existingProduct));
         return productRepository.save(existingProduct);
     }
 
