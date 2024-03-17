@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -74,7 +72,6 @@ public class Product {
     /**
      * Дата последнего изменения количества товара.
      */
-    @LastModifiedDate
     @Column(name = "last_quantity_change_date", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastQuantityChangeDate;
@@ -82,11 +79,19 @@ public class Product {
     /**
      * Дата создания товара.
      */
-    @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_date", nullable = false, updatable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdDate;
+
+    /**
+     * Устанавливает дату создания и последнего изменения количества перед созданием сущности.
+     */
+    @PrePersist
+    void setDates() {
+        this.createdDate = LocalDateTime.now();
+        this.lastQuantityChangeDate = LocalDateTime.now();
+    }
 
     /**
      * Конструктор, создающий объект класса на основе объекта {@link SaveProductDto}.

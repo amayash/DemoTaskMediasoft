@@ -87,14 +87,21 @@ class WarehouseApplicationTests {
         updatedProductDto.setDescription("new description");
         updatedProductDto.setCategory(ProductCategory.ELECTRONICS);
         updatedProductDto.setPrice(5000.0);
-        updatedProductDto.setQuantity(150);
         Thread.sleep(1000);
         Product updatedProduct = productService.updateProduct(createdProduct.getId(), updatedProductDto);
 
         assertProductEquals(updatedProductDto, updatedProduct);
-        Assertions.assertNotEquals(
+        Assertions.assertEquals(
                 createdProduct.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS),
                 updatedProduct.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS)
+        );
+
+        updatedProductDto.setQuantity(150);
+        Thread.sleep(1000);
+        Product updatedProductWithQuantityChange = productService.updateProduct(createdProduct.getId(), updatedProductDto);
+        Assertions.assertNotEquals(
+                createdProduct.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS),
+                updatedProductWithQuantityChange.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS)
         );
     }
 

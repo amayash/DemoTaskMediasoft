@@ -4,11 +4,11 @@ import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
 import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
-import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,28 +79,14 @@ public class ProductService {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
 
-        if (StringUtils.isNotBlank(updatedProductDto.getName())) {
-            existingProduct.setName(updatedProductDto.getName());
-        }
-
-        if (StringUtils.isNotBlank(updatedProductDto.getArticle())) {
-            existingProduct.setArticle(updatedProductDto.getArticle());
-        }
-
-        if (StringUtils.isNotBlank(updatedProductDto.getDescription())) {
-            existingProduct.setDescription(updatedProductDto.getDescription());
-        }
-
-        if (updatedProductDto.getCategory() != null) {
-            existingProduct.setCategory(updatedProductDto.getCategory());
-        }
-
-        if (updatedProductDto.getPrice() != null) {
-            existingProduct.setPrice(updatedProductDto.getPrice());
-        }
-
-        if (updatedProductDto.getQuantity() != null) {
+        existingProduct.setName(updatedProductDto.getName());
+        existingProduct.setArticle(updatedProductDto.getArticle());
+        existingProduct.setDescription(updatedProductDto.getDescription());
+        existingProduct.setCategory(updatedProductDto.getCategory());
+        existingProduct.setPrice(updatedProductDto.getPrice());
+        if (!existingProduct.getQuantity().equals(updatedProductDto.getQuantity())) {
             existingProduct.setQuantity(updatedProductDto.getQuantity());
+            existingProduct.setLastQuantityChangeDate(LocalDateTime.now());
         }
 
         return productRepository.save(existingProduct);
