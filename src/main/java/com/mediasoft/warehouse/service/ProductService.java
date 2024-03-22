@@ -1,15 +1,16 @@
 package com.mediasoft.warehouse.service;
 
 import com.mediasoft.warehouse.dto.SaveProductDto;
+import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
-import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -22,24 +23,29 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     /**
-     * Получить все товары.
+     * Получить все товары с пагинацией.
      *
+     * @param page Номер страницы.
+     * @param size Размер страницы.
      * @return Список всех товаров.
      */
     @Transactional(readOnly = true)
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public Page<Product> getAllProducts(int page, int size) {
+        return productRepository.findAll(PageRequest.of(page - 1, size));
     }
 
     /**
      * Получить товары с учетом параметра поиска.
      *
      * @param search Строка для поиска в названии, артикуле и описании товара.
+     * @param page   Номер страницы.
+     * @param size   Размер страницы.
      * @return Список товаров, удовлетворяющих критериям поиска.
      */
     @Transactional(readOnly = true)
-    public List<Product> getAllProducts(String search) {
-        return productRepository.findDistinctByNameContainingOrArticleContainingOrDescriptionContaining(search, search, search);
+    public Page<Product> getAllProducts(String search, int page, int size) {
+        return productRepository.findDistinctByNameContainingOrArticleContainingOrDescriptionContaining(search,
+                search, search, PageRequest.of(page - 1, size));
     }
 
     /**

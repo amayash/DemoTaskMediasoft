@@ -1,17 +1,17 @@
 package com.mediasoft.warehouse;
 
 import com.mediasoft.warehouse.dto.SaveProductDto;
+import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.ProductCategory;
 import com.mediasoft.warehouse.repository.ProductRepository;
 import com.mediasoft.warehouse.service.ProductService;
-import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -143,8 +143,8 @@ class WarehouseApplicationTests {
         product.setArticle("new_article");
         productService.createProduct(product);
 
-        List<Product> products = productService.getAllProducts();
-        Assertions.assertEquals(2, products.size());
+        Page<Product> products = productService.getAllProducts(1, 3);
+        Assertions.assertEquals(2, products.getTotalElements());
     }
 
     /**
@@ -167,10 +167,10 @@ class WarehouseApplicationTests {
         product.setDescription("name");
         productService.createProduct(product);
 
-        List<Product> products = productService.getAllProducts();
-        Assertions.assertEquals(4, products.size());
-        products = productService.getAllProducts("name");
-        Assertions.assertEquals(3, products.size());
+        Page<Product> products = productService.getAllProducts(1, 5);
+        Assertions.assertEquals(4, products.getTotalElements());
+        products = productService.getAllProducts("name", 1, 5);
+        Assertions.assertEquals(3, products.getTotalElements());
     }
 
     /**

@@ -5,9 +5,9 @@ import com.mediasoft.warehouse.dto.ViewProductDto;
 import com.mediasoft.warehouse.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -20,23 +20,21 @@ public class ProductController {
     private final ProductService productService;
 
     /**
-     * Получить список товаров с возможностью фильтрации.
+     * Получить список товаров с возможностью фильтрации и пагинацией.
      *
      * @param search Ключевое слово для фильтрации товаров (опционально).
+     * @param page   Номер страницы.
+     * @param size   Размер страницы.
      * @return Список DTO товаров, с фильтром или без.
      */
     @GetMapping
-    public List<ViewProductDto> get(@RequestParam(value = "search", required = false) String search) {
+    public Page<ViewProductDto> get(@RequestParam(required = false) String search,
+                                    @RequestParam(defaultValue = "1") int page,
+                                    @RequestParam(defaultValue = "5") int size) {
         if (search == null)
-            return productService.getAllProducts()
-                    .stream()
-                    .map(ViewProductDto::new)
-                    .toList();
+            return productService.getAllProducts(page, size).map(ViewProductDto::new);
         else
-            return productService.getAllProducts(search)
-                    .stream()
-                    .map(ViewProductDto::new)
-                    .toList();
+            return productService.getAllProducts(search, page, size).map(ViewProductDto::new);
     }
 
     /**
