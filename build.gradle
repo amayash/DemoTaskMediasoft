@@ -11,14 +11,6 @@ java {
 	sourceCompatibility = '17'
 }
 
-//jar {
-//	manifest {
-//		attributes(
-//				'Main-Class': 'com.mediasoft.warehouse.WarehouseApplication'
-//		)
-//	}
-//}
-
 repositories {
 	mavenCentral()
 }
