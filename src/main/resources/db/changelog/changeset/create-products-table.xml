@@ -32,8 +32,5 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createIndex tableName="products" indexName="uq_idx_products_article">
-            <column name="article"/>
-        </createIndex>
     </changeSet>
 </databaseChangeLog>
