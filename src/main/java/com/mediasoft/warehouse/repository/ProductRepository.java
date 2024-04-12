@@ -26,4 +26,5 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
                                                                                          String article,
                                                                                          String description,
                                                                                          Pageable pageable);
+    boolean existsByArticle(String article);
 }

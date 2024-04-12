@@ -1,6 +1,7 @@
 package com.mediasoft.warehouse;
 
 import com.mediasoft.warehouse.dto.SaveProductDto;
+import com.mediasoft.warehouse.error.exception.DuplicateArticleException;
 import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.ProductCategory;
@@ -69,6 +70,9 @@ class WarehouseApplicationTests {
         assertProductEquals(product, createdProduct);
         Assertions.assertEquals(createdProduct.getCreatedDate(),
                 createdProduct.getLastQuantityChangeDate());
+
+        Assertions.assertThrows(DuplicateArticleException.class, () ->
+                productService.createProduct(product));
     }
 
     /**
@@ -103,6 +107,12 @@ class WarehouseApplicationTests {
                 createdProduct.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS),
                 updatedProductWithQuantityChange.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS)
         );
+
+        originalProduct.setArticle("another article");
+        Product productWithAnotherArticle = productService.createProduct(originalProduct);
+        updatedProductDto.setArticle(productWithAnotherArticle.getArticle());
+        Assertions.assertThrows(DuplicateArticleException.class, () ->
+                productService.updateProduct(createdProduct.getId(), updatedProductDto));
     }
 
     /**
