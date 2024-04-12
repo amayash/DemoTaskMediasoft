@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * Сущность, представляющая товар в системе.
  */
-@Entity
+@Entity(name = "products")
 @Data
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
