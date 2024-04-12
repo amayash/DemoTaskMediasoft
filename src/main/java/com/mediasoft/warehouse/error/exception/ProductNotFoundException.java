@@ -9,12 +9,13 @@ import java.util.UUID;
  * {@link Product} с указанным идентификатором не был найден.
  */
 public class ProductNotFoundException extends RuntimeException {
+
     /**
      * Конструктор для создания объекта исключения.
      *
      * @param id Идентификатор товара, который не был найден.
      */
     public ProductNotFoundException(UUID id) {
-        super(String.format("Product with id [%s] is not found", id));
+        super(String.format("Product with id or article [%s] is not found", id));
     }
 }

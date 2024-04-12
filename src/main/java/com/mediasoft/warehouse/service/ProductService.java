@@ -2,7 +2,6 @@ package com.mediasoft.warehouse.service;
 
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
-import com.mediasoft.warehouse.error.exception.DuplicateArticleException;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -67,14 +66,9 @@ public class ProductService {
      *
      * @param saveProductDto DTO с информацией о новом товаре.
      * @return Созданный товар.
-     * @throws DuplicateArticleException, если товар с указанным артикулом уже существует.
      */
     @Transactional
     public Product createProduct(SaveProductDto saveProductDto) {
-        String article = saveProductDto.getArticle();
-        if (productRepository.existsByArticle(article)) {
-            throw new DuplicateArticleException(article);
-        }
         return productRepository.save(new Product(saveProductDto));
     }
 
@@ -85,20 +79,14 @@ public class ProductService {
      * @param updatedProductDto DTO с измененной информацией о товаре.
      * @return Измененный товар.
      * @throws ProductNotFoundException, если товар не найден.
-     * @throws DuplicateArticleException, если товар с указанным артикулом уже существует.
      */
     @Transactional
     public Product updateProduct(UUID productId, SaveProductDto updatedProductDto) {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
-        String article = updatedProductDto.getArticle();
-        if (productRepository.existsByArticle(article)
-                && !existingProduct.getArticle().equals(article)) {
-            throw new DuplicateArticleException(article);
-        }
 
         existingProduct.setName(updatedProductDto.getName());
-        existingProduct.setArticle(article);
+        existingProduct.setArticle(updatedProductDto.getArticle());
         existingProduct.setDescription(updatedProductDto.getDescription());
         existingProduct.setCategory(updatedProductDto.getCategory());
         existingProduct.setPrice(updatedProductDto.getPrice());
