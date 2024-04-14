@@ -26,4 +26,12 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
                                                                                          String article,
                                                                                          String description,
                                                                                          Pageable pageable);
+
+    /**
+     * Получить информацию о том, существует ли товар с указанным артикулом.
+     *
+     * @param article Артикул для проверки.
+     * @return Флаг, указывающий существует ли товар с указанным артикулом.
+     */
+    boolean existsByArticle(String article);
 }
