@@ -1,19 +1,18 @@
 package com.mediasoft.warehouse.aspect;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Aspect
 @Component
+@Slf4j
 public class TransactionAspect {
-    private static final Logger log = LoggerFactory.getLogger(TransactionAspect.class);
     private final ThreadLocal<String> callingMethodName = new ThreadLocal<>();
 
     @Around("@annotation(org.springframework.transaction.annotation.Transactional)")

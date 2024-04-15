@@ -9,9 +9,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 
-@Slf4j
 @Component
 @Aspect
+@Slf4j
 public class ExecutionTimeAspect {
     @Around("@annotation(measureExecutionTime)")
     public Object measureExecutionTime(ProceedingJoinPoint joinPoint, MeasureExecutionTime measureExecutionTime) throws Throwable {

@@ -3,8 +3,7 @@ package com.mediasoft.warehouse.scheduling;
 import com.mediasoft.warehouse.annotation.MeasureExecutionTime;
 import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.JobParameters;
@@ -20,9 +19,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('true')")
 @Profile("prod")
+@Slf4j
 public class OptimizedScheduler {
-    private static final Logger log = LoggerFactory.getLogger(OptimizedScheduler.class);
-
     private final JobLauncher jobLauncher;
     private final Job importUserJob;
 

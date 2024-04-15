@@ -4,8 +4,7 @@ import com.mediasoft.warehouse.annotation.MeasureExecutionTime;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Profile;
@@ -20,8 +19,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @ConditionalOnExpression("'${spring.scheduling.enabled}'.equals('true') and '${spring.scheduling.optimization}'.equals('false')")
 @Profile("prod")
+@Slf4j
 public class SimpleScheduler {
-    private static final Logger log = LoggerFactory.getLogger(SimpleScheduler.class);
     private final ProductRepository productRepository;
 
     @Value("${spring.scheduling.priceIncreasePercentage}")
