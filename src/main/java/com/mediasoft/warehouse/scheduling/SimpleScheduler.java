@@ -13,28 +13,25 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-@ConditionalOnExpression("'${spring.scheduling.enabled}'.equals('true') and '${spring.scheduling.optimization}'.equals('false')")
-@Profile("prod")
+@ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('false')")
+@Profile("!dev")
 @Slf4j
 public class SimpleScheduler {
     private final ProductRepository productRepository;
 
-    @Value("${spring.scheduling.priceIncreasePercentage}")
-    private String percent;
+    @Value("{new java.math.Double(\"${app.scheduling.priceIncreasePercentage:10}\")}")
+    private Double percent;
 
-    @Scheduled(fixedDelayString = "${spring.scheduling.period}")
+    @Scheduled(fixedDelayString = "${app.scheduling.period}")
     @MeasureExecutionTime
     @Transactional
     public void scheduleFixedDelayTask() {
-        List<Product> productList = productRepository.findAll();
+        final List<Product> productList = productRepository.findAll();
         log.info("Price 1: " + productList.get(0).getPrice());
-        productList = productList.stream()
-                .peek(product -> product.setPrice(product.getPrice() * (1 + Double.parseDouble(percent) / 100)))
-                .collect(Collectors.toList());
+        productList.forEach(product -> product.setPrice(product.getPrice() * (1 + percent / 100)));
         log.info("Price 1 + {}%: {}", percent, productList.get(0).getPrice());
         productRepository.saveAll(productList);
     }

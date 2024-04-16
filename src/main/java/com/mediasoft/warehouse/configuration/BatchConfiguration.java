@@ -10,9 +10,8 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
-import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
-import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
+import org.springframework.batch.item.database.support.PostgresPagingQueryProvider;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.batch.item.file.transform.PassThroughLineAggregator;
@@ -33,18 +32,18 @@ import java.util.Map;
 
 @Configuration
 @ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('true')")
-@Profile("prod")
+@Profile("!dev")
 public class BatchConfiguration {
     @Bean
-    public JdbcPagingItemReader<Product> reader(DataSource dataSource) throws Exception {
+    public JdbcPagingItemReader<Product> reader(DataSource dataSource) {
         JdbcPagingItemReader<Product> reader = new JdbcPagingItemReader<>();
         reader.setDataSource(dataSource);
         // Размер пакета - количество записей, выбираемых за один раз из базы данных
         reader.setFetchSize(10000);
-        reader.setRowMapper(productRowMapper());
-        reader.setQueryProvider(queryProvider(dataSource));
         // Размер страницы - количество записей, выбираемых из базы данных за один запрос пагинации
         reader.setPageSize(1000);
+        reader.setRowMapper(productRowMapper());
+        reader.setQueryProvider(queryProvider());
         return reader;
     }
 
@@ -54,15 +53,15 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public PagingQueryProvider queryProvider(DataSource dataSource) throws Exception {
-        SqlPagingQueryProviderFactoryBean queryProvider = new SqlPagingQueryProviderFactoryBean();
-        queryProvider.setDataSource(dataSource);
+    public PostgresPagingQueryProvider queryProvider() {
+        Map<String, Order> sortKeys = new HashMap<>();
+        sortKeys.put("id", Order.ASCENDING);
+        PostgresPagingQueryProvider queryProvider = new PostgresPagingQueryProvider();
         queryProvider.setSelectClause("SELECT *");
         queryProvider.setFromClause("FROM products");
-        Map<String, Order> sortKeys = new HashMap<>(1);
-        sortKeys.put("id", Order.ASCENDING);
         queryProvider.setSortKeys(sortKeys);
-        return queryProvider.getObject();
+
+        return queryProvider;
     }
 
     @Bean

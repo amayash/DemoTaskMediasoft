@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: Warehouse
       POSTGRES_USER: role_for_spring
-      POSTGRES_PASSWORD: ${PWD}
+      POSTGRES_PASSWORD: ${dbPassword}
     volumes:
       - data:/var/lib/postgresql/data
     ports:
