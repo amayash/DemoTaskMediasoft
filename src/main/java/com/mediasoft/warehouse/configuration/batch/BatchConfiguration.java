@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.configuration;
+package com.mediasoft.warehouse.configuration.batch;
 
 import com.mediasoft.warehouse.model.Product;
 import org.springframework.batch.core.Job;
@@ -30,10 +30,20 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Конфигурационный класс для настройки и определения задач пакетной обработки.
+ */
 @Configuration
-@ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('true')")
+@ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('true')" +
+        " and '${app.scheduling.spring-batching}'.equals('true')")
 @Profile("!dev")
 public class BatchConfiguration {
+    /**
+     * Создает читатель для чтения данных из базы данных.
+     *
+     * @param dataSource источник данных для чтения
+     * @return JdbcPagingItemReader для чтения данных из базы данных
+     */
     @Bean
     public JdbcPagingItemReader<Product> reader(DataSource dataSource) {
         JdbcPagingItemReader<Product> reader = new JdbcPagingItemReader<>();
@@ -47,11 +57,21 @@ public class BatchConfiguration {
         return reader;
     }
 
+    /**
+     * Создает маппер строк для маппинга результатов запроса.
+     *
+     * @return маппер строк для объектов Product
+     */
     @Bean
     public RowMapper<Product> productRowMapper() {
         return new BeanPropertyRowMapper<>(Product.class);
     }
 
+    /**
+     * Создает поставщик запросов для использования считывателем.
+     *
+     * @return поставщик запросов с пагинируемыми данными
+     */
     @Bean
     public PostgresPagingQueryProvider queryProvider() {
         Map<String, Order> sortKeys = new HashMap<>();
@@ -64,11 +84,22 @@ public class BatchConfiguration {
         return queryProvider;
     }
 
+    /**
+     * Создает экземпляр ItemProcessor для обработки элементов.
+     *
+     * @return экземпляр ItemProcessor
+     */
     @Bean
     public ItemProcessor<Product, Product> processor() {
         return new ProductItemProcessor();
     }
 
+    /**
+     * Создает писатель для записи данных в базу данных.
+     *
+     * @param dataSource источник данных для записи
+     * @return JdbcBatchItemWriter для записи данных в базу данных
+     */
     @Bean
     public JdbcBatchItemWriter<Product> writer(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Product>()
@@ -78,6 +109,11 @@ public class BatchConfiguration {
                 .build();
     }
 
+    /**
+     * Создает писатель для записи данных в файл.
+     *
+     * @return FlatFileItemWriter для записи данных в файл
+     */
     @Bean
     public FlatFileItemWriter<Product> fileWriter() {
         return new FlatFileItemWriterBuilder<Product>()
@@ -88,6 +124,12 @@ public class BatchConfiguration {
                 .build();
     }
 
+    /**
+     * Создает композитный писатель для использования обоих писателей данных.
+     *
+     * @param dataSource источник данных для записи
+     * @return CompositeItemWriter для использования обоих писателей данных
+     */
     @Bean
     public CompositeItemWriter<Product> compositeItemWriter(DataSource dataSource) {
         CompositeItemWriter<Product> compositeWriter = new CompositeItemWriter<>();
@@ -95,6 +137,13 @@ public class BatchConfiguration {
         return compositeWriter;
     }
 
+    /**
+     * Создает Job для обработки данных.
+     *
+     * @param jobRepository репозиторий заданий
+     * @param step1         шаг обработки данных
+     * @return экземпляр Job для обработки данных
+     */
     @Bean
     public Job importUserJob(JobRepository jobRepository, Step step1) {
         return new JobBuilder("importUserJob", jobRepository)
@@ -102,6 +151,16 @@ public class BatchConfiguration {
                 .build();
     }
 
+    /**
+     * Создает шаг обработки данных для использования в работе.
+     *
+     * @param jobRepository       репозиторий работ
+     * @param transactionManager  менеджер транзакций
+     * @param reader              читатель данных
+     * @param processor           обработчик данных
+     * @param compositeItemWriter композитный писатель данных
+     * @return экземпляр Step для обработки данных
+     */
     @Bean
     public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager,
                       JdbcPagingItemReader<Product> reader, ItemProcessor<Product, Product> processor,

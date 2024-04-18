@@ -2,6 +2,7 @@ package com.mediasoft.warehouse.model;
 
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Entity(name = "products")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Product {
     /**

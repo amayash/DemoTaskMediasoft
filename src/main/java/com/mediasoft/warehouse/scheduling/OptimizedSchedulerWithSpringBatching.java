@@ -13,27 +13,35 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+/**
+ * Запланированная задача для обновления цен товаров с использованием Spring Batching.
+ */
 @Component
 @RequiredArgsConstructor
-@ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('true')")
+@ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('true')" +
+        " and '${app.scheduling.spring-batching}'.equals('true')")
 @Profile("!dev")
 @Slf4j
-public class OptimizedScheduler {
+public class OptimizedSchedulerWithSpringBatching {
     private final JobLauncher jobLauncher;
     private final Job importUserJob;
 
+    /**
+     * Метод запускается периодически с фиксированной задержкой
+     * для обновления цен товаров с использованием Spring Batching.
+     */
     @Scheduled(fixedDelayString = "${app.scheduling.period}")
     @MeasureExecutionTime
     public void scheduleFixedDelayTask() {
         try {
-            log.info("OptimizedScheduler: Start.");
+            log.info("Start.");
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("JobID", String.valueOf(System.currentTimeMillis()))
                     .toJobParameters();
             jobLauncher.run(importUserJob, jobParameters);
-            log.info("OptimizedScheduler: Batch job successfully triggered.");
+            log.info("Batch job successfully triggered.");
         } catch (JobExecutionException e) {
-            log.error("OptimizedScheduler: Error triggering batch job: {}", e.getMessage());
+            log.error("Error triggering batch job: {}", e.getMessage());
         }
     }
 }
