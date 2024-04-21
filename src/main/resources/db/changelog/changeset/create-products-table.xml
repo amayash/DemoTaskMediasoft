@@ -19,16 +19,16 @@
             <column name="category" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="price" type="double">
+            <column name="price" type="numeric(10,2)">
                 <constraints nullable="false"/>
             </column>
-            <column name="quantity" type="int">
+            <column name="quantity" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="last_quantity_change_date" type="timestamp">
                 <constraints nullable="false"/>
             </column>
-            <column name="created_date" type="timestamp">
+            <column name="created_date" type="date">
                 <constraints nullable="false"/>
             </column>
         </createTable>

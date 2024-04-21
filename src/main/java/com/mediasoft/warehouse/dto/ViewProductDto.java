@@ -6,6 +6,8 @@ import com.mediasoft.warehouse.model.ProductCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -43,12 +45,12 @@ public class ViewProductDto {
     /**
      * Цена товара.
      */
-    private Double price;
+    private BigDecimal price;
 
     /**
      * Количество товара.
      */
-    private Integer quantity;
+    private Long quantity;
 
     /**
      * Дата последнего изменения количества товара.
@@ -59,8 +61,8 @@ public class ViewProductDto {
     /**
      * Дата создания товара.
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate createdDate;
 
     /**
      * Создает экземпляр класса на основе объекта {@link Product}.
