@@ -1,6 +1,7 @@
-package com.mediasoft.warehouse.configuration.batch;
+package com.mediasoft.warehouse.configuration;
 
 import com.mediasoft.warehouse.model.Product;
+import com.mediasoft.warehouse.processor.ProductItemProcessor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -34,8 +35,8 @@ import java.util.Map;
  * Конфигурационный класс для настройки и определения задач пакетной обработки.
  */
 @Configuration
-@ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('true')" +
-        " and '${app.scheduling.spring-batching}'.equals('true')")
+@ConditionalOnExpression(value = "#{'${app.scheduling.mode:none}'.equals('optimization') and " +
+        "${app.scheduling.optimization.spring-batch:false}}")
 @Profile("!dev")
 public class BatchConfiguration {
     /**

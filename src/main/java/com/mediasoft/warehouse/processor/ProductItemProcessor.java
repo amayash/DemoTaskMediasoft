@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.configuration.batch;
+package com.mediasoft.warehouse.processor;
 
 import com.mediasoft.warehouse.model.Product;
 import org.springframework.batch.item.ItemProcessor;

@@ -14,10 +14,7 @@ import javax.sql.DataSource;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.UUID;
 
 /**
@@ -25,8 +22,8 @@ import java.util.UUID;
  */
 @Component
 @RequiredArgsConstructor
-@ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('true')" +
-        " and '${app.scheduling.spring-batching}'.equals('false')")
+@ConditionalOnExpression(value = "#{'${app.scheduling.mode:none}'.equals('optimization') and " +
+        "!${app.scheduling.optimization.spring-batch:false}}")
 @Profile("!dev")
 @Slf4j
 public class OptimizedSchedulerWithPreparedStatements {
@@ -44,54 +41,77 @@ public class OptimizedSchedulerWithPreparedStatements {
     @Transactional
     public void scheduleFixedDelayTask() {
         log.info("Start.");
-        try (Connection connection = dataSource.getConnection();
-             BufferedWriter writer = new BufferedWriter(new FileWriter("products.txt"))) {
+        Connection connection = null;
+        BufferedWriter writer = null;
+        try {
+            connection = dataSource.getConnection();
+            writer = new BufferedWriter(new FileWriter("products.txt"));
             connection.setAutoCommit(false);
-            String selectQuery = "SELECT * FROM products";
+            String selectQuery = "SELECT * FROM products FOR UPDATE";
             String updateQuery = "UPDATE products SET price = ? WHERE id = ?";
 
-            try (PreparedStatement selectStatement = connection.prepareStatement(selectQuery);
-                 PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
+            Statement selectStatement = connection.createStatement();
+            PreparedStatement updateStatement = connection.prepareStatement(updateQuery);
 
-                ResultSet resultSet = selectStatement.executeQuery();
-                int columnCount = resultSet.getMetaData().getColumnCount();
-                int count = 0;
-                while (resultSet.next()) {
-                    UUID id = (UUID) resultSet.getObject("id");
-                    double currentPrice = resultSet.getDouble("price");
-                    double newPrice = currentPrice * (1 + Double.parseDouble(percent) / 100);
+            ResultSet resultSet = selectStatement.executeQuery(selectQuery);
+            int columnCount = resultSet.getMetaData().getColumnCount();
+            int count = 0;
+            while (resultSet.next()) {
+                UUID id = (UUID) resultSet.getObject("id");
+                double currentPrice = resultSet.getDouble("price");
+                double newPrice = currentPrice * (1 + Double.parseDouble(percent) / 100);
 
-                    StringBuilder row = new StringBuilder();
-                    for (int i = 1; i <= columnCount; i++) {
-                        if (i == columnCount) {
-                            row.append(resultSet.getString(i));
-                        } else {
-                            row.append(resultSet.getString(i)).append(", ");
-                        }
-                    }
-                    writer.write(row.toString());
-                    writer.newLine();
+                String row = buildRowString(resultSet, columnCount);
+                writer.write(row);
+                writer.newLine();
 
-                    updateStatement.setDouble(1, newPrice);
-                    updateStatement.setObject(2, id);
-                    updateStatement.addBatch();
+                updateStatement.setDouble(1, newPrice);
+                updateStatement.setObject(2, id);
+                updateStatement.addBatch();
 
-                    count++;
-                    if (count % BATCH_SIZE == 0) {
-                        updateStatement.executeBatch();
-                    }
+                count++;
+                if (count % BATCH_SIZE == 0) {
+                    updateStatement.executeBatch();
                 }
-                updateStatement.executeBatch();
-                connection.commit();
-            } catch (SQLException e) {
-                connection.rollback();
-                log.error("Failed to execute SQL query", e);
-            } finally {
-                writer.close();
-                connection.setAutoCommit(true);
             }
-        } catch (SQLException | IOException e) {
-            log.error("Failed to establish database connection or write to file", e);
+            updateStatement.executeBatch();
+            connection.commit();
+        } catch (Exception exception) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException sqlException) {
+                log.error("Failed to rollback transaction", sqlException);
+            }
+            log.error("The following exception was received", exception);
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException ex) {
+                    log.error("Failed to close writer", ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    log.error("Failed to close connection", ex);
+                }
+            }
         }
+    }
+
+    private String buildRowString(ResultSet resultSet, int columnCount) throws SQLException {
+        StringBuilder row = new StringBuilder();
+        for (int i = 1; i <= columnCount; i++) {
+            if (i == columnCount) {
+                row.append(resultSet.getString(i));
+            } else {
+                row.append(resultSet.getString(i)).append(", ");
+            }
+        }
+        return row.toString();
     }
 }

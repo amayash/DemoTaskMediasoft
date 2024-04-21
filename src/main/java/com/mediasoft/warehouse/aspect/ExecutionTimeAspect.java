@@ -27,11 +27,13 @@ public class ExecutionTimeAspect {
     public Object measureExecutionTime(ProceedingJoinPoint joinPoint,
                                        MeasureExecutionTime measureExecutionTime) throws Throwable {
         long startTime = System.nanoTime();
-        Object result = joinPoint.proceed();
-        long endTime = System.nanoTime();
-        long executionTimeInNanos = endTime - startTime;
-        double executionTimeInMilliseconds = executionTimeInNanos / 1e6;
-        log.info("{} execution time: {} ms", joinPoint.getSignature().toShortString(), executionTimeInMilliseconds);
-        return result;
+        try {
+            return joinPoint.proceed();
+        } finally {
+            long endTime = System.nanoTime();
+            long executionTimeInNanos = endTime - startTime;
+            double executionTimeInMilliseconds = executionTimeInNanos / 1e6;
+            log.info("{} execution time: {} ms", joinPoint.getSignature().toShortString(), executionTimeInMilliseconds);
+        }
     }
 }

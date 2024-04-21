@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-@ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('true')" +
-        " and '${app.scheduling.spring-batching}'.equals('true')")
+@ConditionalOnExpression(value = "#{'${app.scheduling.mode:none}'.equals('optimization') and " +
+        "${app.scheduling.optimization.spring-batch:false}}")
 @Profile("!dev")
 @Slf4j
 public class OptimizedSchedulerWithSpringBatching {

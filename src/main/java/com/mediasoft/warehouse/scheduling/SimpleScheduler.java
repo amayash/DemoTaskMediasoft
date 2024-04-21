@@ -19,7 +19,7 @@ import java.util.List;
  */
 @Component
 @RequiredArgsConstructor
-@ConditionalOnExpression("'${app.scheduling.enabled}'.equals('true') and '${app.scheduling.optimization}'.equals('false')")
+@ConditionalOnExpression(value = "#{'${app.scheduling.mode:none}'.equals('simple')}")
 @Profile("!dev")
 @Slf4j
 public class SimpleScheduler {
@@ -36,9 +36,7 @@ public class SimpleScheduler {
     @Transactional
     public void scheduleFixedDelayTask() {
         final List<Product> productList = productRepository.findAll();
-        log.info("Price 1: " + productList.get(0).getPrice());
         productList.forEach(product -> product.setPrice(product.getPrice() * (1 + Double.parseDouble(percent) / 100)));
-        log.info("Price 1 + {}%: {}", percent, productList.get(0).getPrice());
         productRepository.saveAll(productList);
     }
 }

@@ -18,8 +18,8 @@ spring:
 
 app:
   scheduling:
-    enabled: true
-    optimization: true
-    spring-batching: false
+    mode: optimization
     period: 60000 #ms
     priceIncreasePercentage: 10.1
+    optimization:
+      spring-batch: false
