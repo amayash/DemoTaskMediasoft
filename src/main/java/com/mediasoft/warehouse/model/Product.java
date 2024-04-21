@@ -2,13 +2,12 @@ package com.mediasoft.warehouse.model;
 
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,36 +15,37 @@ import java.util.UUID;
  * Сущность, представляющая товар в системе.
  */
 @Entity(name = "products")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
+@Getter
+@Setter
 public class Product {
     /**
      * Идентификатор товара.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, unique = true, nullable = false)
     private UUID id;
 
     /**
      * Название товара.
      */
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     @NonNull
     private String name;
 
     /**
      * Артикул товара.
      */
-    @Column(unique = true, nullable = false)
+    @Column(name = "article", unique = true, nullable = false)
     @NonNull
     private String article;
 
     /**
      * Описание товара.
      */
-    @Column(length = 512, nullable = false)
+    @Column(name = "description", length = 512, nullable = false)
     @NonNull
     private String description;
 
@@ -53,27 +53,28 @@ public class Product {
      * Категория товара.
      */
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "category", nullable = false)
     @NonNull
     private ProductCategory category;
 
     /**
      * Цена товара.
      */
-    @Column(nullable = false)
+    @Column(name = "price", nullable = false)
     @NonNull
-    private Double price;
+    private BigDecimal price;
 
     /**
      * Количество товара.
      */
-    @Column(nullable = false)
+    @Column(name = "quantity", nullable = false)
     @NonNull
-    private Integer quantity;
+    private Long quantity;
 
     /**
      * Дата последнего изменения количества товара.
      */
+    @CreationTimestamp
     @Column(name = "last_quantity_change_date", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastQuantityChangeDate;
@@ -81,18 +82,17 @@ public class Product {
     /**
      * Дата создания товара.
      */
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_date", nullable = false, updatable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdDate;
+    @Column(name = "created_date", updatable = false, nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+
+    private LocalDate createdDate;
 
     /**
-     * Устанавливает дату создания и последнего изменения количества перед созданием сущности.
+     * Устанавливает дату создания перед созданием сущности.
      */
     @PrePersist
-    void setDates() {
-        this.createdDate = LocalDateTime.now();
-        this.lastQuantityChangeDate = LocalDateTime.now();
+    void setCreatedDate() {
+        this.createdDate = LocalDate.now();
     }
 
     /**
