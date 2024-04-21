@@ -1,5 +1,6 @@
 package com.mediasoft.warehouse.controller;
 
+import com.mediasoft.warehouse.dto.ProductFilterDto;
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.dto.ViewProductDto;
 import com.mediasoft.warehouse.service.ProductService;
@@ -35,6 +36,11 @@ public class ProductController {
             return productService.getAllProducts(page, size).map(ViewProductDto::new);
         else
             return productService.getAllProducts(search, page, size).map(ViewProductDto::new);
+    }
+
+    @GetMapping
+    public Page<ViewProductDto> searchProducts(@RequestBody @Valid ProductFilterDto productFilterDto) {
+        return productService.getAllProducts(productFilterDto.getPage(), productFilterDto.getSize()).map(ViewProductDto::new);
     }
 
     /**

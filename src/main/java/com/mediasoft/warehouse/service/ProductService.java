@@ -1,17 +1,28 @@
 package com.mediasoft.warehouse.service;
 
+import com.mediasoft.warehouse.dto.ProductFilterDto;
 import com.mediasoft.warehouse.dto.SaveProductDto;
+import com.mediasoft.warehouse.dto.ViewProductDto;
 import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.error.exception.DuplicateArticleException;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -34,6 +45,39 @@ public class ProductService {
     public Page<Product> getAllProducts(int page, int size) {
         return productRepository.findAll(PageRequest.of(page - 1, size));
     }
+
+    /**
+     * Получить все товары с пагинацией.
+     *
+     * @return Список всех товаров.
+     */
+    @Transactional(readOnly = true)
+    public Page<Product> getAllProducts(final ProductFilterDto filter) {
+//        CriteriaBuilder builder = session.getCriteriaBuilder();
+//        CriteriaQuery<Product> criteriaQuery = builder.createQuery(Product.class);
+//        Root<Product> products = criteriaQuery.from(Product.class);
+//
+//        criteriaQuery.select(criteriaQuery.from(Product.class))
+//                .where(builder.like(products.get("name"), "%" + name + "%"));
+//        return productRepository.findAll(PageRequest.of(page - 1, size));
+        final PageRequest pageRequest = PageRequest.of(filter.getPage(), filter.getSize());
+        final Specification<Product> specification = (root, query, criteriaBuilder) -> {
+            final List<Predicate> predicates = new ArrayList<>();
+            if (filter.getName() != null) {
+                predicates.add(criteriaBuilder.like(root.get("name"), "%" + filter.getName() + "%"));
+            }
+            if (filter.getQuantity() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("quantity"), filter.getQuantity()));
+            }
+            if (filter.getPrice() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), filter.getPrice()));
+            }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return productRepository.findAll(specification, pageRequest);
+    }
+
 
     /**
      * Получить товары с учетом параметра поиска.
