@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -22,10 +23,10 @@ import java.util.List;
 @ConditionalOnExpression(value = "#{'${app.scheduling.mode:none}'.equals('simple')}")
 @Profile("!dev")
 @Slf4j
-public class SimpleScheduler {
+public class SimpleScheduler implements PriceScheduler {
     private final ProductRepository productRepository;
-    @Value("${app.scheduling.priceIncreasePercentage}")
-    private String percent;
+    @Value("#{new java.math.BigDecimal(\"${app.scheduling.priceIncreasePercentage:10}\")}")
+    private BigDecimal percent;
 
     /**
      * Метод запускается периодически с фиксированной задержкой
@@ -36,7 +37,7 @@ public class SimpleScheduler {
     @Transactional
     public void scheduleFixedDelayTask() {
         final List<Product> productList = productRepository.findAll();
-        productList.forEach(product -> product.setPrice(product.getPrice() * (1 + Double.parseDouble(percent) / 100)));
+        productList.forEach(product -> product.setPrice(getNewPrice(product.getPrice(), percent)));
         productRepository.saveAll(productList);
     }
 }

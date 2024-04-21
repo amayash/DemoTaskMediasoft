@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
         "${app.scheduling.optimization.spring-batch:false}}")
 @Profile("!dev")
 @Slf4j
-public class OptimizedSchedulerWithSpringBatching {
+public class OptimizedSchedulerWithSpringBatching implements PriceScheduler {
     private final JobLauncher jobLauncher;
     private final Job importUserJob;
 

@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.UUID;
 
@@ -26,10 +27,10 @@ import java.util.UUID;
         "!${app.scheduling.optimization.spring-batch:false}}")
 @Profile("!dev")
 @Slf4j
-public class OptimizedSchedulerWithPreparedStatements {
+public class OptimizedSchedulerWithPreparedStatements implements PriceScheduler {
     private final DataSource dataSource;
-    @Value("${app.scheduling.priceIncreasePercentage}")
-    private String percent;
+    @Value("#{new java.math.BigDecimal(\"${app.scheduling.priceIncreasePercentage:10}\")}")
+    private BigDecimal percent;
     private static final int BATCH_SIZE = 100000;
 
     /**
@@ -58,14 +59,13 @@ public class OptimizedSchedulerWithPreparedStatements {
             int count = 0;
             while (resultSet.next()) {
                 UUID id = (UUID) resultSet.getObject("id");
-                double currentPrice = resultSet.getDouble("price");
-                double newPrice = currentPrice * (1 + Double.parseDouble(percent) / 100);
 
                 String row = buildRowString(resultSet, columnCount);
                 writer.write(row);
                 writer.newLine();
 
-                updateStatement.setDouble(1, newPrice);
+                updateStatement.setBigDecimal(1,
+                        getNewPrice(resultSet.getBigDecimal("price"), percent));
                 updateStatement.setObject(2, id);
                 updateStatement.addBatch();
 
@@ -103,6 +103,14 @@ public class OptimizedSchedulerWithPreparedStatements {
         }
     }
 
+    /**
+     * Строит строку из указанного ResultSet с разделением запятыми.
+     *
+     * @param resultSet   ResultSet, содержащий данные для строки.
+     * @param columnCount Количество столбцов в ResultSet.
+     * @return Строка с данными, где значения разделены запятыми.
+     * @throws SQLException если произошла ошибка доступа к бд
+     */
     private String buildRowString(ResultSet resultSet, int columnCount) throws SQLException {
         StringBuilder row = new StringBuilder();
         for (int i = 1; i <= columnCount; i++) {
