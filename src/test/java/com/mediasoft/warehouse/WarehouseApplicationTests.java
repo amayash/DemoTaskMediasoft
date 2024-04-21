@@ -12,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit-тесты для бизнес-логики {@link ProductService}.
@@ -38,8 +41,8 @@ class WarehouseApplicationTests {
         product.setArticle("abc123");
         product.setDescription("description");
         product.setCategory(ProductCategory.BOOKS);
-        product.setPrice(500.0);
-        product.setQuantity(15);
+        product.setPrice(BigDecimal.valueOf(500));
+        product.setQuantity(15L);
         return product;
     }
 
@@ -68,8 +71,8 @@ class WarehouseApplicationTests {
         Product createdProduct = productService.createProduct(product);
 
         assertProductEquals(product, createdProduct);
-        Assertions.assertEquals(createdProduct.getCreatedDate(),
-                createdProduct.getLastQuantityChangeDate());
+        assertEquals(createdProduct.getCreatedDate(),
+                createdProduct.getLastQuantityChangeDate().toLocalDate());
 
         Assertions.assertThrows(DuplicateArticleException.class, () ->
                 productService.createProduct(product));
@@ -90,17 +93,17 @@ class WarehouseApplicationTests {
         updatedProductDto.setArticle("1234abc");
         updatedProductDto.setDescription("new description");
         updatedProductDto.setCategory(ProductCategory.ELECTRONICS);
-        updatedProductDto.setPrice(5000.0);
+        updatedProductDto.setPrice(BigDecimal.valueOf(5000));
         Thread.sleep(1000);
         Product updatedProduct = productService.updateProduct(createdProduct.getId(), updatedProductDto);
 
         assertProductEquals(updatedProductDto, updatedProduct);
-        Assertions.assertEquals(
+        assertEquals(
                 createdProduct.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS),
                 updatedProduct.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS)
         );
 
-        updatedProductDto.setQuantity(150);
+        updatedProductDto.setQuantity(150L);
         Thread.sleep(1000);
         Product updatedProductWithQuantityChange = productService.updateProduct(createdProduct.getId(), updatedProductDto);
         Assertions.assertNotEquals(
@@ -123,11 +126,8 @@ class WarehouseApplicationTests {
         Product createdProduct = productService.createProduct(createProductDto());
         Product product = productService.getProductById(createdProduct.getId());
         assertProductEquals(new SaveProductDto(createdProduct), product);
-        Assertions.assertEquals(
-                createdProduct.getCreatedDate().truncatedTo(ChronoUnit.SECONDS),
-                product.getCreatedDate().truncatedTo(ChronoUnit.SECONDS)
-        );
-        Assertions.assertEquals(
+        assertEquals(createdProduct.getCreatedDate(), product.getCreatedDate());
+        assertEquals(
                 createdProduct.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS),
                 product.getLastQuantityChangeDate().truncatedTo(ChronoUnit.SECONDS)
         );
@@ -154,7 +154,7 @@ class WarehouseApplicationTests {
         productService.createProduct(product);
 
         Page<Product> products = productService.getAllProducts(1, 3);
-        Assertions.assertEquals(2, products.getTotalElements());
+        assertEquals(2, products.getTotalElements());
     }
 
     /**
@@ -178,9 +178,9 @@ class WarehouseApplicationTests {
         productService.createProduct(product);
 
         Page<Product> products = productService.getAllProducts(1, 5);
-        Assertions.assertEquals(4, products.getTotalElements());
+        assertEquals(4, products.getTotalElements());
         products = productService.getAllProducts("name", 1, 5);
-        Assertions.assertEquals(3, products.getTotalElements());
+        assertEquals(3, products.getTotalElements());
     }
 
     /**
@@ -202,11 +202,11 @@ class WarehouseApplicationTests {
      * @param actual   Фактический товар.
      */
     private void assertProductEquals(SaveProductDto expected, Product actual) {
-        Assertions.assertEquals(expected.getName(), actual.getName());
-        Assertions.assertEquals(expected.getArticle(), actual.getArticle());
-        Assertions.assertEquals(expected.getDescription(), actual.getDescription());
-        Assertions.assertEquals(expected.getCategory(), actual.getCategory());
-        Assertions.assertEquals(expected.getPrice(), actual.getPrice());
-        Assertions.assertEquals(expected.getQuantity(), actual.getQuantity());
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getArticle(), actual.getArticle());
+        assertEquals(expected.getDescription(), actual.getDescription());
+        assertEquals(expected.getCategory(), actual.getCategory());
+        assertEquals(0, expected.getPrice().compareTo(actual.getPrice()));
+        assertEquals(expected.getQuantity(), actual.getQuantity());
     }
 }

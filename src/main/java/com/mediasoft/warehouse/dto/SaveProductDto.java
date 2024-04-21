@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 /**
  * DTO для сохранения или изменения {@link Product}.
  */
@@ -46,14 +48,14 @@ public class SaveProductDto {
      */
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be a positive number")
-    private Double price;
+    private BigDecimal price;
 
     /**
      * Количество товара.
      */
     @NotNull(message = "Quantity is required")
     @PositiveOrZero(message = "Quantity must be a positive number")
-    private Integer quantity;
+    private Long quantity;
 
     public SaveProductDto(Product product) {
         this.name = product.getName();
