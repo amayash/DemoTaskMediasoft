@@ -2,24 +2,22 @@ package com.mediasoft.warehouse.service;
 
 import com.mediasoft.warehouse.dto.ProductFilterDto;
 import com.mediasoft.warehouse.dto.SaveProductDto;
-import com.mediasoft.warehouse.dto.ViewProductDto;
-import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.error.exception.DuplicateArticleException;
+import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
+import com.mediasoft.warehouse.service.operation.IOperation;
+import com.mediasoft.warehouse.service.operation.OperationNumberImpl;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +28,11 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("unchecked")
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ApplicationContext applicationContext;
 
     /**
      * Получить все товары с пагинацией.
@@ -46,38 +46,50 @@ public class ProductService {
         return productRepository.findAll(PageRequest.of(page - 1, size));
     }
 
-    /**
-     * Получить все товары с пагинацией.
-     *
-     * @return Список всех товаров.
-     */
-    @Transactional(readOnly = true)
-    public Page<Product> getAllProducts(final ProductFilterDto filter) {
-//        CriteriaBuilder builder = session.getCriteriaBuilder();
-//        CriteriaQuery<Product> criteriaQuery = builder.createQuery(Product.class);
-//        Root<Product> products = criteriaQuery.from(Product.class);
-//
-//        criteriaQuery.select(criteriaQuery.from(Product.class))
-//                .where(builder.like(products.get("name"), "%" + name + "%"));
-//        return productRepository.findAll(PageRequest.of(page - 1, size));
-        final PageRequest pageRequest = PageRequest.of(filter.getPage(), filter.getSize());
+    @Transactional
+    public Page<Product> getAllProducts(int page, int size, List<ProductFilterDto<?>> filters) {
+        final PageRequest pageRequest = PageRequest.of(page - 1, size);
+
         final Specification<Product> specification = (root, query, criteriaBuilder) -> {
             final List<Predicate> predicates = new ArrayList<>();
-            if (filter.getName() != null) {
-                predicates.add(criteriaBuilder.like(root.get("name"), "%" + filter.getName() + "%"));
+
+            for (ProductFilterDto<?> filter : filters) {
+                if (filter.getValue() == null)
+                    continue;
+
+                IOperation temp;
+                if (filter.getValue() instanceof String) {
+                    temp = (IOperation) applicationContext.getBean("String");
+                } else {
+                    temp = (IOperation) applicationContext.getBean("Number");
+                }
+
+                Specification<Product> operationSpec = switch (filter.getOperation()) {
+                    case "~" -> temp.likeOperation(parseValue(filter.getValue(), temp.getClass()), filter.getField());
+                    case ">=" ->
+                            temp.greaterThanOrEqualsOperation(parseValue(filter.getValue(), temp.getClass()), filter.getField());
+                    case "<=" ->
+                            temp.lessThanOrEqualsOperation(parseValue(filter.getValue(), temp.getClass()), filter.getField());
+                    default -> temp.equalsOperation(parseValue(filter.getValue(), temp.getClass()), filter.getField());
+                };
+
+                if (operationSpec != null) {
+                    predicates.add(operationSpec.toPredicate(root, query, criteriaBuilder));
+                }
             }
-            if (filter.getQuantity() != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("quantity"), filter.getQuantity()));
-            }
-            if (filter.getPrice() != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), filter.getPrice()));
-            }
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
         return productRepository.findAll(specification, pageRequest);
     }
 
+
+    private Object parseValue(Object value, Class<?> classType) {
+        if (classType.equals(OperationNumberImpl.class)) {
+            return new BigDecimal(value.toString());
+        } else return value;
+    }
 
     /**
      * Получить товары с учетом параметра поиска.
@@ -128,7 +140,7 @@ public class ProductService {
      * @param productId         Идентификатор товара, который нужно изменить.
      * @param updatedProductDto DTO с измененной информацией о товаре.
      * @return Измененный товар.
-     * @throws ProductNotFoundException, если товар не найден.
+     * @throws ProductNotFoundException,  если товар не найден.
      * @throws DuplicateArticleException, если товар с указанным артикулом уже существует.
      */
     @Transactional

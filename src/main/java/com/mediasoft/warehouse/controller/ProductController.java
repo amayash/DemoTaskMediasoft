@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -38,9 +39,11 @@ public class ProductController {
             return productService.getAllProducts(search, page, size).map(ViewProductDto::new);
     }
 
-    @GetMapping
-    public Page<ViewProductDto> searchProducts(@RequestBody @Valid ProductFilterDto productFilterDto) {
-        return productService.getAllProducts(productFilterDto.getPage(), productFilterDto.getSize()).map(ViewProductDto::new);
+    @GetMapping("/search")
+    public Page<ViewProductDto> searchProducts(@RequestParam(defaultValue = "1") int page,
+                                               @RequestParam(defaultValue = "5") int size,
+                                               @RequestBody @Valid List<ProductFilterDto<?>> productFilterDtoList) {
+        return productService.getAllProducts(page, size, productFilterDtoList).map(ViewProductDto::new);
     }
 
     /**
