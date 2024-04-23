@@ -1,8 +1,10 @@
 package com.mediasoft.warehouse.scheduling;
 
 import com.mediasoft.warehouse.annotation.MeasureExecutionTime;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Profile;
@@ -13,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.sql.DataSource;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.UUID;
 
 /**
@@ -32,6 +36,7 @@ public class OptimizedSchedulerWithPreparedStatements implements PriceScheduler 
     @Value("#{new java.math.BigDecimal(\"${app.scheduling.priceIncreasePercentage:10}\")}")
     private BigDecimal percent;
     private static final int BATCH_SIZE = 100000;
+    private final EntityManagerFactory entityManagerFactory;
 
     /**
      * Метод запускается периодически с фиксированной задержкой
@@ -42,64 +47,50 @@ public class OptimizedSchedulerWithPreparedStatements implements PriceScheduler 
     @Transactional
     public void scheduleFixedDelayTask() {
         log.info("Start.");
-        Connection connection = null;
-        BufferedWriter writer = null;
-        try {
-            connection = dataSource.getConnection();
-            writer = new BufferedWriter(new FileWriter("products.txt"));
-            connection.setAutoCommit(false);
-            String selectQuery = "SELECT * FROM products FOR UPDATE";
-            String updateQuery = "UPDATE products SET price = ? WHERE id = ?";
+        final Session session = entityManagerFactory.createEntityManager().unwrap(Session.class);
+        try (session) {
+            session.doWork(connection -> {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("products.txt"));
+                     connection
+                ) {
+                    connection.setAutoCommit(false);
+                    String selectQuery = "SELECT * FROM products FOR UPDATE";
+                    String updateQuery = "UPDATE products SET price = ? WHERE id = ?";
 
-            Statement selectStatement = connection.createStatement();
-            PreparedStatement updateStatement = connection.prepareStatement(updateQuery);
+                    Statement selectStatement = connection.createStatement();
+                    PreparedStatement updateStatement = connection.prepareStatement(updateQuery);
 
-            ResultSet resultSet = selectStatement.executeQuery(selectQuery);
-            int columnCount = resultSet.getMetaData().getColumnCount();
-            int count = 0;
-            while (resultSet.next()) {
-                UUID id = (UUID) resultSet.getObject("id");
+                    ResultSet resultSet = selectStatement.executeQuery(selectQuery);
+                    int columnCount = resultSet.getMetaData().getColumnCount();
+                    int count = 0;
+                    while (resultSet.next()) {
+                        UUID id = (UUID) resultSet.getObject("id");
 
-                String row = buildRowString(resultSet, columnCount);
-                writer.write(row);
-                writer.newLine();
+                        String row = buildRowString(resultSet, columnCount);
+                        writer.write(row);
+                        writer.newLine();
 
-                updateStatement.setBigDecimal(1,
-                        getNewPrice(resultSet.getBigDecimal("price"), percent));
-                updateStatement.setObject(2, id);
-                updateStatement.addBatch();
+                        updateStatement.setBigDecimal(1,
+                                getNewPrice(resultSet.getBigDecimal("price"), percent));
+                        updateStatement.setObject(2, id);
+                        updateStatement.addBatch();
 
-                count++;
-                if (count % BATCH_SIZE == 0) {
+                        count++;
+                        if (count % BATCH_SIZE == 0) {
+                            updateStatement.executeBatch();
+                        }
+                    }
                     updateStatement.executeBatch();
+                    connection.commit();
+                } catch (Exception exception) {
+                    try {
+                        connection.rollback();
+                    } catch (SQLException sqlException) {
+                        log.error("Failed to rollback transaction", sqlException);
+                    }
+                    log.error("The following exception was received", exception);
                 }
-            }
-            updateStatement.executeBatch();
-            connection.commit();
-        } catch (Exception exception) {
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (SQLException sqlException) {
-                log.error("Failed to rollback transaction", sqlException);
-            }
-            log.error("The following exception was received", exception);
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ex) {
-                    log.error("Failed to close writer", ex);
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error("Failed to close connection", ex);
-                }
-            }
+            });
         }
     }
 
