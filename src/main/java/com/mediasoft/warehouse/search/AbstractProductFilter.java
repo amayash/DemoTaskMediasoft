@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.service.operation;
+package com.mediasoft.warehouse.search;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -18,11 +18,19 @@ import org.springframework.data.jpa.domain.Specification;
  */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        property = "type"
+        visible = true,
+        property = "field"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = StringProductFilter.class, name = "string"),
-        @JsonSubTypes.Type(value = NumberProductFilter.class, name = "number")
+        @JsonSubTypes.Type(value = StringProductFilter.class, name = "ID"),
+        @JsonSubTypes.Type(value = StringProductFilter.class, name = "NAME"),
+        @JsonSubTypes.Type(value = StringProductFilter.class, name = "ARTICLE"),
+        @JsonSubTypes.Type(value = StringProductFilter.class, name = "DESCRIPTION"),
+        @JsonSubTypes.Type(value = StringProductFilter.class, name = "CATEGORY"),
+        @JsonSubTypes.Type(value = NumberProductFilter.class, name = "PRICE"),
+        @JsonSubTypes.Type(value = NumberProductFilter.class, name = "QUANTITY"),
+        @JsonSubTypes.Type(value = StringProductFilter.class, name = "LAST_QUANTITY_CHANGE_DATE"),
+        @JsonSubTypes.Type(value = StringProductFilter.class, name = "LAST_QUANTITY_CHANGE_DATE")
 })
 @Getter
 @Setter

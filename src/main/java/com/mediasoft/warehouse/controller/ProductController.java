@@ -3,7 +3,7 @@ package com.mediasoft.warehouse.controller;
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.dto.ViewProductDto;
 import com.mediasoft.warehouse.service.ProductService;
-import com.mediasoft.warehouse.service.operation.AbstractProductFilter;
+import com.mediasoft.warehouse.search.AbstractProductFilter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

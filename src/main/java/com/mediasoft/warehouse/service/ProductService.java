@@ -5,7 +5,7 @@ import com.mediasoft.warehouse.error.exception.DuplicateArticleException;
 import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
-import com.mediasoft.warehouse.service.operation.AbstractProductFilter;
+import com.mediasoft.warehouse.search.AbstractProductFilter;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
