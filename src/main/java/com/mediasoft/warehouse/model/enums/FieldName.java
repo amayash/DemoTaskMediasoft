@@ -1,5 +1,8 @@
 package com.mediasoft.warehouse.model.enums;
 
+/**
+ * Перечисление для полей товаров.
+ */
 public enum FieldName {
     ID,
     NAME,

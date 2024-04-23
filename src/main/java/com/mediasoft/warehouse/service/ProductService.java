@@ -1,23 +1,20 @@
 package com.mediasoft.warehouse.service;
 
-import com.mediasoft.warehouse.dto.ProductFilterDto;
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.error.exception.DuplicateArticleException;
 import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
-import com.mediasoft.warehouse.service.operation.IOperation;
-import com.mediasoft.warehouse.service.operation.OperationNumberImpl;
+import com.mediasoft.warehouse.service.operation.AbstractProductFilter;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +25,8 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings("unchecked")
 public class ProductService {
-
     private final ProductRepository productRepository;
-    private final ApplicationContext applicationContext;
 
     /**
      * Получить все товары с пагинацией.
@@ -46,49 +40,35 @@ public class ProductService {
         return productRepository.findAll(PageRequest.of(page - 1, size));
     }
 
-    @Transactional
-    public Page<Product> getAllProducts(int page, int size, List<ProductFilterDto<?>> filters) {
-        final PageRequest pageRequest = PageRequest.of(page - 1, size);
+    /**
+     * Получает все товары с учетом фильтров.
+     *
+     * @param pageable Pageable для работы с пагинацией и сортировкой результатов поиска
+     * @param filters  список фильтров товаров
+     * @return страница товаров, удовлетворяющих фильтрам
+     */
+    @Transactional(readOnly = true)
+    public Page<Product> getAllProducts(Pageable pageable, List<AbstractProductFilter<?>> filters) {
+        final PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
 
         final Specification<Product> specification = (root, query, criteriaBuilder) -> {
             final List<Predicate> predicates = new ArrayList<>();
-
-            for (ProductFilterDto<?> filter : filters) {
-                if (filter.getValue() == null)
-                    continue;
-
-                IOperation temp;
-                if (filter.getValue() instanceof String) {
-                    temp = (IOperation) applicationContext.getBean("String");
-                } else {
-                    temp = (IOperation) applicationContext.getBean("Number");
-                }
-
+            for (AbstractProductFilter<?> filter : filters) {
                 Specification<Product> operationSpec = switch (filter.getOperation()) {
-                    case "~" -> temp.likeOperation(parseValue(filter.getValue(), temp.getClass()), filter.getField());
-                    case ">=" ->
-                            temp.greaterThanOrEqualsOperation(parseValue(filter.getValue(), temp.getClass()), filter.getField());
-                    case "<=" ->
-                            temp.lessThanOrEqualsOperation(parseValue(filter.getValue(), temp.getClass()), filter.getField());
-                    default -> temp.equalsOperation(parseValue(filter.getValue(), temp.getClass()), filter.getField());
+                    case "~" -> filter.likeOperation();
+                    case ">=" -> filter.greaterThanOrEqualsOperation();
+                    case "<=" -> filter.lessThanOrEqualsOperation();
+                    default -> filter.equalsOperation();
                 };
 
                 if (operationSpec != null) {
                     predicates.add(operationSpec.toPredicate(root, query, criteriaBuilder));
                 }
             }
-
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
         return productRepository.findAll(specification, pageRequest);
-    }
-
-
-    private Object parseValue(Object value, Class<?> classType) {
-        if (classType.equals(OperationNumberImpl.class)) {
-            return new BigDecimal(value.toString());
-        } else return value;
     }
 
     /**
