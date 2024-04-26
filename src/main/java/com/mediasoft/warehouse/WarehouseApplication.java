@@ -2,13 +2,13 @@ package com.mediasoft.warehouse;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Основной класс приложения.
  */
 @SpringBootApplication
-@EnableJpaAuditing
+@EnableScheduling
 public class WarehouseApplication {
     /**
      * Метод для запуска приложения.
