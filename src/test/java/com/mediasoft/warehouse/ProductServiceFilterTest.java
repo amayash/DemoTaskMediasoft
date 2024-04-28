@@ -2,12 +2,11 @@ package com.mediasoft.warehouse;
 
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.enums.FieldName;
+import com.mediasoft.warehouse.model.enums.OperationType;
 import com.mediasoft.warehouse.model.enums.ProductCategory;
 import com.mediasoft.warehouse.repository.ProductRepository;
+import com.mediasoft.warehouse.search.*;
 import com.mediasoft.warehouse.service.ProductService;
-import com.mediasoft.warehouse.search.AbstractProductFilter;
-import com.mediasoft.warehouse.search.NumberProductFilter;
-import com.mediasoft.warehouse.search.StringProductFilter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -81,43 +80,43 @@ public class ProductServiceFilterTest {
         BigDecimal maxPrice = BigDecimal.valueOf(650);
         BigDecimal similarPrice = BigDecimal.valueOf(620);
 
-        NumberProductFilter priceFilter1 = new NumberProductFilter();
+        BigDecimalProductFilter priceFilter1 = new BigDecimalProductFilter();
         priceFilter1.setField(FieldName.PRICE);
-        priceFilter1.setOperation(">=");
+        priceFilter1.setOperation(OperationType.GRATER_THAN_OR_EQ);
         priceFilter1.setSearchParam(minPrice);
 
-        NumberProductFilter priceFilter2 = new NumberProductFilter();
+        BigDecimalProductFilter priceFilter2 = new BigDecimalProductFilter();
         priceFilter2.setField(FieldName.PRICE);
-        priceFilter2.setOperation("<=");
+        priceFilter2.setOperation(OperationType.LESS_THAN_OR_EQ);
         priceFilter2.setSearchParam(maxPrice);
 
-        NumberProductFilter priceFilter3 = new NumberProductFilter();
+        BigDecimalProductFilter priceFilter3 = new BigDecimalProductFilter();
         priceFilter3.setField(FieldName.PRICE);
-        priceFilter3.setOperation("~");
+        priceFilter3.setOperation(OperationType.LIKE);
         priceFilter3.setSearchParam(similarPrice);
 
         StringProductFilter stringFilter1 = new StringProductFilter();
         stringFilter1.setField(FieldName.NAME);
-        stringFilter1.setOperation("<=");
+        stringFilter1.setOperation(OperationType.LESS_THAN_OR_EQ);
         stringFilter1.setSearchParam("Product");
 
-        StringProductFilter stringFilter2 = new StringProductFilter();
-        stringFilter2.setField(FieldName.LAST_QUANTITY_CHANGE_DATE);
-        stringFilter2.setOperation("~");
-        stringFilter2.setSearchParam(LocalDateTime.now().minusDays(2).toString());
+        LocalDateTimeProductFilter localDateTimeProductFilter = new LocalDateTimeProductFilter();
+        localDateTimeProductFilter.setField(FieldName.LAST_QUANTITY_CHANGE_DATE);
+        localDateTimeProductFilter.setOperation(OperationType.LIKE);
+        localDateTimeProductFilter.setSearchParam(LocalDateTime.now().minusDays(2));
 
-        StringProductFilter stringFilter3 = new StringProductFilter();
-        stringFilter3.setField(FieldName.CREATED_DATE);
-        stringFilter3.setOperation("~");
-        stringFilter3.setSearchParam(LocalDate.now().minusDays(2).toString());
+        LocalDateProductFilter localDateProductFilter = new LocalDateProductFilter();
+        localDateProductFilter.setField(FieldName.CREATED_DATE);
+        localDateProductFilter.setOperation(OperationType.LIKE);
+        localDateProductFilter.setSearchParam(LocalDate.now().minusDays(2));
 
         List<AbstractProductFilter<?>> filters = new ArrayList<>();
         filters.add(priceFilter1);
         filters.add(priceFilter2);
         filters.add(priceFilter3);
         filters.add(stringFilter1);
-        filters.add(stringFilter2);
-        filters.add(stringFilter3);
+        filters.add(localDateTimeProductFilter);
+        filters.add(localDateProductFilter);
 
         Page<Product> productsPage = productService.getAllProducts(PageRequest.of(0, 5), filters);
         assertEquals(1, productsPage.getContent().size(), "Ожидается 1 товар в результате фильтрации");

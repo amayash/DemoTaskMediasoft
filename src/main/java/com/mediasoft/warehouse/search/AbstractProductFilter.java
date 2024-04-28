@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.enums.FieldName;
+import com.mediasoft.warehouse.model.enums.OperationType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,15 +25,15 @@ import org.springframework.data.jpa.domain.Specification;
         property = "field"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = StringProductFilter.class, name = "ID"),
+        @JsonSubTypes.Type(value = UUIDProductFilter.class, name = "ID"),
         @JsonSubTypes.Type(value = StringProductFilter.class, name = "NAME"),
         @JsonSubTypes.Type(value = StringProductFilter.class, name = "ARTICLE"),
         @JsonSubTypes.Type(value = StringProductFilter.class, name = "DESCRIPTION"),
         @JsonSubTypes.Type(value = StringProductFilter.class, name = "CATEGORY"),
-        @JsonSubTypes.Type(value = NumberProductFilter.class, name = "PRICE"),
-        @JsonSubTypes.Type(value = NumberProductFilter.class, name = "QUANTITY"),
-        @JsonSubTypes.Type(value = StringProductFilter.class, name = "LAST_QUANTITY_CHANGE_DATE"),
-        @JsonSubTypes.Type(value = StringProductFilter.class, name = "LAST_QUANTITY_CHANGE_DATE")
+        @JsonSubTypes.Type(value = BigDecimalProductFilter.class, name = "PRICE"),
+        @JsonSubTypes.Type(value = LongProductFilter.class, name = "QUANTITY"),
+        @JsonSubTypes.Type(value = LocalDateTimeProductFilter.class, name = "LAST_QUANTITY_CHANGE_DATE"),
+        @JsonSubTypes.Type(value = LocalDateProductFilter.class, name = "CREATED_DATE")
 })
 @Getter
 @Setter
@@ -46,7 +49,8 @@ public abstract class AbstractProductFilter<T> {
      * Операция фильтрации.
      */
     @NotNull
-    protected String operation;
+    @Enumerated(EnumType.STRING)
+    protected OperationType operation;
 
     /**
      * Параметр поиска.

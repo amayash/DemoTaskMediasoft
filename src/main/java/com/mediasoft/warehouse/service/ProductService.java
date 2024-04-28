@@ -49,15 +49,14 @@ public class ProductService {
      */
     @Transactional(readOnly = true)
     public Page<Product> getAllProducts(Pageable pageable, List<AbstractProductFilter<?>> filters) {
-        final PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
 
         final Specification<Product> specification = (root, query, criteriaBuilder) -> {
             final List<Predicate> predicates = new ArrayList<>();
             for (AbstractProductFilter<?> filter : filters) {
                 Specification<Product> operationSpec = switch (filter.getOperation()) {
-                    case "~" -> filter.likeOperation();
-                    case ">=" -> filter.greaterThanOrEqualsOperation();
-                    case "<=" -> filter.lessThanOrEqualsOperation();
+                    case LIKE -> filter.likeOperation();
+                    case GRATER_THAN_OR_EQ -> filter.greaterThanOrEqualsOperation();
+                    case LESS_THAN_OR_EQ -> filter.lessThanOrEqualsOperation();
                     default -> filter.equalsOperation();
                 };
 
@@ -68,7 +67,7 @@ public class ProductService {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
-        return productRepository.findAll(specification, pageRequest);
+        return productRepository.findAll(specification, pageable);
     }
 
     /**
