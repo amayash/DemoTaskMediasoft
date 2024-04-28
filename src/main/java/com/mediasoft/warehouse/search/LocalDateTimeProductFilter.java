@@ -6,6 +6,10 @@ import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Фильтр товаров по LocalDateTime значениям.
+ * Определяет спецификации для различных операций фильтрации.
+ */
 public class LocalDateTimeProductFilter extends AbstractProductFilter<LocalDateTime> {
     /**
      * Возвращает спецификацию для операции "~".

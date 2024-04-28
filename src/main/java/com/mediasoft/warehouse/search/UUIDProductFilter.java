@@ -5,6 +5,10 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.UUID;
 
+/**
+ * Фильтр товаров по UUID значениям.
+ * Определяет спецификации для различных операций фильтрации.
+ */
 public class UUIDProductFilter extends AbstractProductFilter<UUID> {
     /**
      * Возвращает спецификацию для операции "~".

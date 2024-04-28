@@ -5,6 +5,10 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 
+/**
+ * Фильтр товаров по LocalDate значениям.
+ * Определяет спецификации для различных операций фильтрации.
+ */
 public class LocalDateProductFilter extends AbstractProductFilter<LocalDate> {
     /**
      * Возвращает спецификацию для операции "~".

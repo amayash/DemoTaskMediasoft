@@ -6,7 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.math.BigDecimal;
 
 /**
- * Фильтр товаров по числовым значениям.
+ * Фильтр товаров по BigDecimal значениям.
  * Определяет спецификации для различных операций фильтрации.
  */
 public class BigDecimalProductFilter extends AbstractProductFilter<BigDecimal> {

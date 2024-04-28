@@ -3,6 +3,10 @@ package com.mediasoft.warehouse.search;
 import com.mediasoft.warehouse.model.Product;
 import org.springframework.data.jpa.domain.Specification;
 
+/**
+ * Фильтр товаров по Long значениям.
+ * Определяет спецификации для различных операций фильтрации.
+ */
 public class LongProductFilter extends AbstractProductFilter<Long> {
     /**
      * Возвращает спецификацию для операции "~".
