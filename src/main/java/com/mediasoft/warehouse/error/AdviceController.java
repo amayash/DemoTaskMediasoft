@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +32,8 @@ public class AdviceController {
             IllegalArgumentException.class
     })
     public ResponseEntity<Object> handleException(Throwable e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        final ErrorDetails errorDetails = new ErrorDetails(e.getStackTrace()[0].getClassName(), e.getClass().getSimpleName(), e.getMessage(), LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
     /**
@@ -42,11 +44,15 @@ public class AdviceController {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleBindException(MethodArgumentNotValidException e) {
-        final ValidationException validationException = new ValidationException(
+        ErrorDetails errorDetails = new ErrorDetails(
+                e.getStackTrace()[0].getClassName(),
+                e.getClass().getSimpleName(),
                 e.getBindingResult().getAllErrors().stream()
                         .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                        .collect(Collectors.toSet()));
-        return handleException(validationException);
+                        .collect(Collectors.joining(", ")),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
     /**
@@ -58,6 +64,12 @@ public class AdviceController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleUnknownException(Throwable e) {
         e.printStackTrace();
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        ErrorDetails errorDetails = new ErrorDetails(
+                e.getStackTrace()[0].getClassName(),
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDetails);
     }
 }
