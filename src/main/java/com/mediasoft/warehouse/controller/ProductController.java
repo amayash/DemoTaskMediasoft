@@ -66,6 +66,19 @@ public class ProductController {
     }
 
     /**
+     * Поиск товаров с использованием фильтров.
+     *
+     * @param pageable               Pageable для работы с пагинацией и сортировкой результатов поиска
+     * @param abstractProductFilters список фильтров товаров
+     * @return страницу товаров, удовлетворяющих фильтрам, преобразованную в список DTO товаров
+     */
+    @PostMapping("/search")
+    public Page<ViewProductDto> searchProducts(Pageable pageable,
+                                               @RequestBody @Valid List<AbstractProductFilter<?>> abstractProductFilters) {
+        return productService.getAllProducts(pageable, abstractProductFilters).map(ViewProductDto::new);
+    }
+
+    /**
      * Получить товар по ID.
      *
      * @param id Идентификатор товара.
