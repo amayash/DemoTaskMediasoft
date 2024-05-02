@@ -1,17 +1,23 @@
 package com.mediasoft.warehouse.service;
 
 import com.mediasoft.warehouse.dto.SaveProductDto;
-import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.error.exception.DuplicateArticleException;
+import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
+import com.mediasoft.warehouse.search.AbstractProductFilter;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -20,7 +26,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-
     private final ProductRepository productRepository;
 
     /**
@@ -33,6 +38,36 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<Product> getAllProducts(int page, int size) {
         return productRepository.findAll(PageRequest.of(page - 1, size));
+    }
+
+    /**
+     * Получает все товары с учетом фильтров.
+     *
+     * @param pageable Pageable для работы с пагинацией и сортировкой результатов поиска
+     * @param filters  список фильтров товаров
+     * @return страница товаров, удовлетворяющих фильтрам
+     */
+    @Transactional(readOnly = true)
+    public Page<Product> getAllProducts(Pageable pageable, List<AbstractProductFilter<?>> filters) {
+
+        final Specification<Product> specification = (root, query, criteriaBuilder) -> {
+            final List<Predicate> predicates = new ArrayList<>();
+            for (AbstractProductFilter<?> filter : filters) {
+                Specification<Product> operationSpec = switch (filter.getOperation()) {
+                    case LIKE -> filter.likeOperation();
+                    case GRATER_THAN_OR_EQ -> filter.greaterThanOrEqualsOperation();
+                    case LESS_THAN_OR_EQ -> filter.lessThanOrEqualsOperation();
+                    default -> filter.equalsOperation();
+                };
+
+                if (operationSpec != null) {
+                    predicates.add(operationSpec.toPredicate(root, query, criteriaBuilder));
+                }
+            }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return productRepository.findAll(specification, pageable);
     }
 
     /**
@@ -84,7 +119,7 @@ public class ProductService {
      * @param productId         Идентификатор товара, который нужно изменить.
      * @param updatedProductDto DTO с измененной информацией о товаре.
      * @return Измененный товар.
-     * @throws ProductNotFoundException, если товар не найден.
+     * @throws ProductNotFoundException,  если товар не найден.
      * @throws DuplicateArticleException, если товар с указанным артикулом уже существует.
      */
     @Transactional
