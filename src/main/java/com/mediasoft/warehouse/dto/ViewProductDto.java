@@ -86,5 +86,6 @@ public class ViewProductDto {
         this.quantity = product.getQuantity();
         this.lastQuantityChangeDate = product.getLastQuantityChangeDate();
         this.createdDate = product.getCreatedDate();
+        this.currency = "RUB";
     }
 }
