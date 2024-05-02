@@ -2,6 +2,8 @@ package com.mediasoft.warehouse.controller;
 
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.dto.ViewProductDto;
+import com.mediasoft.warehouse.filter.currency.CurrencyProvider;
+import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import java.util.UUID;
 @RequestMapping("/products")
 public class ProductController {
     private final ProductService productService;
+    private final CurrencyProvider currencyProvider;
 
     /**
      * Получить список товаров с возможностью фильтрации и пагинацией.
@@ -31,10 +34,18 @@ public class ProductController {
     public Page<ViewProductDto> get(@RequestParam(required = false) String search,
                                     @RequestParam(defaultValue = "1") int page,
                                     @RequestParam(defaultValue = "5") int size) {
-        if (search == null)
-            return productService.getAllProducts(page, size).map(ViewProductDto::new);
-        else
-            return productService.getAllProducts(search, page, size).map(ViewProductDto::new);
+        Page<Product> productsPage;
+        if (search == null) {
+            productsPage = productService.getAllProducts(page, size);
+        } else {
+            productsPage = productService.getAllProducts(search, page, size);
+        }
+        String currency = currencyProvider.getCurrency();
+        return productsPage.map(product -> {
+            ViewProductDto viewProductDto = new ViewProductDto(product);
+            viewProductDto.setCurrency(currency);
+            return viewProductDto;
+        });
     }
 
     /**
@@ -45,7 +56,9 @@ public class ProductController {
      */
     @GetMapping("/{id}")
     public ViewProductDto getById(@PathVariable UUID id) {
-        return new ViewProductDto(productService.getProductById(id));
+        ViewProductDto productDto = new ViewProductDto(productService.getProductById(id));
+        productDto.setCurrency(currencyProvider.getCurrency());
+        return productDto;
     }
 
     /**

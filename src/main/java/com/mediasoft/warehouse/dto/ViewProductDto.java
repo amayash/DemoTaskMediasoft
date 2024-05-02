@@ -5,6 +5,7 @@ import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.ProductCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ import java.util.UUID;
  * DTO для отображения {@link Product}.
  */
 @Getter
+@Setter
 @NoArgsConstructor
 public class ViewProductDto {
     /**
@@ -63,6 +65,11 @@ public class ViewProductDto {
      */
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate createdDate;
+
+    /**
+     * Валюта цены товара.
+     */
+    private String currency;
 
     /**
      * Создает экземпляр класса на основе объекта {@link Product}.
