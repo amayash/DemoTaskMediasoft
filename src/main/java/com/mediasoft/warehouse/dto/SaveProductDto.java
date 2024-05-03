@@ -1,7 +1,7 @@
 package com.mediasoft.warehouse.dto;
 
 import com.mediasoft.warehouse.model.Product;
-import com.mediasoft.warehouse.model.ProductCategory;
+import com.mediasoft.warehouse.model.enums.ProductCategory;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
