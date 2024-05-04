@@ -3,7 +3,7 @@ package com.mediasoft.warehouse.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mediasoft.warehouse.model.Currency;
 import com.mediasoft.warehouse.model.Product;
-import com.mediasoft.warehouse.model.ProductCategory;
+import com.mediasoft.warehouse.model.enums.ProductCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

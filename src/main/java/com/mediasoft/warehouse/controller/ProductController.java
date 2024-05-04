@@ -6,11 +6,14 @@ import com.mediasoft.warehouse.filter.currency.CurrencyProvider;
 import com.mediasoft.warehouse.model.Currency;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.service.ProductService;
+import com.mediasoft.warehouse.search.AbstractProductFilter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -47,6 +50,19 @@ public class ProductController {
             viewProductDto.setCurrency(currency);
             return viewProductDto;
         });
+    }
+
+    /**
+     * Поиск товаров с использованием фильтров.
+     *
+     * @param pageable               Pageable для работы с пагинацией и сортировкой результатов поиска
+     * @param abstractProductFilters список фильтров товаров
+     * @return страницу товаров, удовлетворяющих фильтрам, преобразованную в список DTO товаров
+     */
+    @PostMapping("/search")
+    public Page<ViewProductDto> searchProducts(Pageable pageable,
+                                               @RequestBody @Valid List<AbstractProductFilter<?>> abstractProductFilters) {
+        return productService.getAllProducts(pageable, abstractProductFilters).map(ViewProductDto::new);
     }
 
     /**

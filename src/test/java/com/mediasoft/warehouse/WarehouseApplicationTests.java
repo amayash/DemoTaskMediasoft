@@ -4,7 +4,7 @@ import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.error.exception.DuplicateArticleException;
 import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.model.Product;
-import com.mediasoft.warehouse.model.ProductCategory;
+import com.mediasoft.warehouse.model.enums.ProductCategory;
 import com.mediasoft.warehouse.repository.ProductRepository;
 import com.mediasoft.warehouse.service.ProductService;
 import org.junit.jupiter.api.*;
