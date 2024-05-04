@@ -1,6 +1,7 @@
 package com.mediasoft.warehouse.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mediasoft.warehouse.model.Currency;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.ProductCategory;
 import lombok.Getter;
@@ -69,7 +70,7 @@ public class ViewProductDto {
     /**
      * Валюта цены товара.
      */
-    private String currency;
+    private Currency currency;
 
     /**
      * Создает экземпляр класса на основе объекта {@link Product}.
@@ -86,6 +87,6 @@ public class ViewProductDto {
         this.quantity = product.getQuantity();
         this.lastQuantityChangeDate = product.getLastQuantityChangeDate();
         this.createdDate = product.getCreatedDate();
-        this.currency = "RUB";
+        this.currency = Currency.RUB;
     }
 }

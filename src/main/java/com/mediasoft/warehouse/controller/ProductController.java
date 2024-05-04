@@ -3,6 +3,7 @@ package com.mediasoft.warehouse.controller;
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.dto.ViewProductDto;
 import com.mediasoft.warehouse.filter.currency.CurrencyProvider;
+import com.mediasoft.warehouse.model.Currency;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.service.ProductService;
 import jakarta.validation.Valid;
@@ -40,7 +41,7 @@ public class ProductController {
         } else {
             productsPage = productService.getAllProducts(search, page, size);
         }
-        String currency = currencyProvider.getCurrency();
+        Currency currency = currencyProvider.getCurrency();
         return productsPage.map(product -> {
             ViewProductDto viewProductDto = new ViewProductDto(product);
             viewProductDto.setCurrency(currency);

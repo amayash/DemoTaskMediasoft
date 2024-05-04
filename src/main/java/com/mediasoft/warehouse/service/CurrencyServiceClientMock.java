@@ -1,6 +1,9 @@
 package com.mediasoft.warehouse.service;
 
 import com.mediasoft.warehouse.dto.ViewCurrenciesDto;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Random;
@@ -8,6 +11,9 @@ import java.util.Random;
 /**
  * Мок-реализация клиента сервиса валют для тестирования.
  */
+@Primary
+@ConditionalOnProperty(name = "app.rest.currency-service.mock.enabled")
+@Component
 public class CurrencyServiceClientMock implements CurrencyServiceClient {
     /**
      * Возвращает случайные данные о курсах валют.
