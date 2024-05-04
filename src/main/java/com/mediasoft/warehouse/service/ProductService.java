@@ -1,8 +1,8 @@
 package com.mediasoft.warehouse.service;
 
 import com.mediasoft.warehouse.dto.SaveProductDto;
-import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.error.exception.DuplicateArticleException;
+import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-
     private final ProductRepository productRepository;
 
     /**
@@ -84,13 +83,12 @@ public class ProductService {
      * @param productId         Идентификатор товара, который нужно изменить.
      * @param updatedProductDto DTO с измененной информацией о товаре.
      * @return Измененный товар.
-     * @throws ProductNotFoundException, если товар не найден.
+     * @throws ProductNotFoundException,  если товар не найден.
      * @throws DuplicateArticleException, если товар с указанным артикулом уже существует.
      */
     @Transactional
     public Product updateProduct(UUID productId, SaveProductDto updatedProductDto) {
-        Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
+        Product existingProduct = getProductById(productId);
         String article = updatedProductDto.getArticle();
         if (productRepository.existsByArticle(article)
                 && !existingProduct.getArticle().equals(article)) {
@@ -102,6 +100,7 @@ public class ProductService {
         existingProduct.setDescription(updatedProductDto.getDescription());
         existingProduct.setCategory(updatedProductDto.getCategory());
         existingProduct.setPrice(updatedProductDto.getPrice());
+        existingProduct.setIsAvailable(updatedProductDto.getIsAvailable());
         if (!existingProduct.getQuantity().equals(updatedProductDto.getQuantity())) {
             existingProduct.setQuantity(updatedProductDto.getQuantity());
             existingProduct.setLastQuantityChangeDate(LocalDateTime.now());

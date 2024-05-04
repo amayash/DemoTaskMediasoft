@@ -4,4 +4,8 @@
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
     <include file="/db/changelog/changeset/create-products-table.xml"/>
     <include file="/db/changelog/changeset/data-initializer.xml"/>
+    <include file="/db/changelog/changeset/add-column-is-available-to-products.xml"/>
+    <include file="/db/changelog/changeset/create-customers-table.xml"/>
+    <include file="/db/changelog/changeset/create-orders-table.xml"/>
+    <include file="/db/changelog/changeset/create-order-product-table.xml"/>
 </databaseChangeLog>

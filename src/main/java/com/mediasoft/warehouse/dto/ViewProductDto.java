@@ -65,6 +65,11 @@ public class ViewProductDto {
     private LocalDate createdDate;
 
     /**
+     * Доступность товара.
+     */
+    private Boolean isAvailable;
+
+    /**
      * Создает экземпляр класса на основе объекта {@link Product}.
      *
      * @param product Объект {@link Product}, для которого создается DTO.
@@ -79,5 +84,6 @@ public class ViewProductDto {
         this.quantity = product.getQuantity();
         this.lastQuantityChangeDate = product.getLastQuantityChangeDate();
         this.createdDate = product.getCreatedDate();
+        this.isAvailable = product.getIsAvailable();
     }
 }

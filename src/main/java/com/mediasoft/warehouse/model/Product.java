@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -84,8 +85,19 @@ public class Product {
      */
     @Column(name = "created_date", updatable = false, nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-
     private LocalDate createdDate;
+
+    /**
+     * Доступность товара.
+     */
+    @Column(name = "is_available", nullable = false)
+    private Boolean isAvailable;
+
+    /**
+     * Список заказов с товаром.
+     */
+    @OneToMany(mappedBy = "product")
+    private List<OrderProduct> orders;
 
     /**
      * Устанавливает дату создания перед созданием сущности.
