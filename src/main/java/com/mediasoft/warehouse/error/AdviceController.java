@@ -1,7 +1,6 @@
 package com.mediasoft.warehouse.error;
 
-import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
-import com.mediasoft.warehouse.error.exception.ValidationException;
+import com.mediasoft.warehouse.error.exception.*;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,8 @@ import java.util.stream.Collectors;
 public class AdviceController {
     /**
      * Обработка исключений ProductNotFoundException, ValidationException
-     * jakarta.validation.ValidationException и IllegalArgumentException.
+     * jakarta.validation.ValidationException и IllegalArgumentException,
+     * DuplicateArticleException, DuplicateLoginException.
      *
      * @param e Исключение, которое было выброшено.
      * @return ResponseEntity с сообщением об ошибке и статусом BAD_REQUEST.
@@ -29,11 +29,30 @@ public class AdviceController {
             ProductNotFoundException.class,
             ValidationException.class,
             jakarta.validation.ValidationException.class,
-            IllegalArgumentException.class
+            IllegalArgumentException.class,
+            DuplicateArticleException.class,
+            DuplicateLoginException.class
     })
     public ResponseEntity<Object> handleException(Throwable e) {
         final ErrorDetails errorDetails = new ErrorDetails(e.getStackTrace()[0].getClassName(), e.getClass().getSimpleName(), e.getMessage(), LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    /**
+     * Обработка исключений ForbiddenException.
+     *
+     * @param e Исключение ForbiddenException.
+     * @return ResponseEntity с сообщением об ошибке и статусом FORBIDDEN.
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Object> handleForbiddenException(ForbiddenException e) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                e.getStackTrace()[0].getClassName(),
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorDetails);
     }
 
     /**

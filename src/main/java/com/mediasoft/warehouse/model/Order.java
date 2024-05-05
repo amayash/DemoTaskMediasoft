@@ -11,7 +11,8 @@ import java.util.UUID;
 /**
  * Сущность, представляющая заказ в системе.
  */
-@Entity(name = "orders")
+@Entity
+@Table(name = "orders")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -43,7 +44,7 @@ public class Order {
     /**
      * Список товаров заказа.
      */
-    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade =
+    @OneToMany(mappedBy = "order", cascade =
             {
                     CascadeType.REMOVE,
                     CascadeType.MERGE,
@@ -51,12 +52,17 @@ public class Order {
             }, orphanRemoval = true)
     private List<OrderProduct> products;
 
+    /**
+     * Покупатель заказа.
+     */
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     /**
      * Добавление товара в заказ.
+     *
+     * @param orderProduct Товар, который добавляется в заказ.
      */
     public void addProduct(OrderProduct orderProduct) {
         if (products == null) {

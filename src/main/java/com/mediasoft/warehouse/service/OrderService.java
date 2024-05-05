@@ -2,11 +2,14 @@ package com.mediasoft.warehouse.service;
 
 import com.mediasoft.warehouse.dto.SaveOrderDto;
 import com.mediasoft.warehouse.dto.SaveOrderProductDto;
+import com.mediasoft.warehouse.dto.SaveOrderStatusDto;
 import com.mediasoft.warehouse.dto.SaveProductDto;
+import com.mediasoft.warehouse.error.exception.IncorrectOrderStatusException;
 import com.mediasoft.warehouse.error.exception.OrderNotFoundException;
 import com.mediasoft.warehouse.model.*;
 import com.mediasoft.warehouse.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,8 +17,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для управления заказами.
+ */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerService customerService;
@@ -35,15 +42,16 @@ public class OrderService {
     }
 
     /**
-     * Создать заказ.
+     * Создать новый заказ.
      *
-     * @param saveOrderDto DTO с информацией о новом заказе.
+     * @param saveOrderDto Данные о новом заказе.
+     * @param customerId   Идентификатор покупателя.
      * @return Созданный заказ.
      */
     @Transactional
-    public Order createOrder(SaveOrderDto saveOrderDto) {
+    public Order createOrder(SaveOrderDto saveOrderDto, Long customerId) {
         final Order order = new Order(saveOrderDto);
-        final Customer customer = customerService.getCustomerById(1L);
+        final Customer customer = customerService.getCustomerById(customerId);
         order.setCustomer(customer);
         Order createdOrder = orderRepository.save(order);
         saveOrderDto.getProducts().stream().
@@ -51,10 +59,17 @@ public class OrderService {
                         SaveOrderProductDto::getId,
                         Collectors.summingLong(SaveOrderProductDto::getQuantity)
                 )).forEach((productId, totalQuantity) ->
-                        addProduct(createdOrder, productId, totalQuantity));
+                        addProductInOrder(createdOrder, productId, totalQuantity));
         return orderRepository.save(createdOrder);
     }
 
+    /**
+     * Обновить информацию о заказе.
+     *
+     * @param orderId             Идентификатор заказа.
+     * @param saveOrderProductDto Информация о товарах в заказе.
+     * @return Обновленный заказ.
+     */
     @Transactional
     public Order updateOrder(UUID orderId, List<SaveOrderProductDto> saveOrderProductDto) {
         final Order order = getOrderById(orderId);
@@ -63,13 +78,22 @@ public class OrderService {
                         SaveOrderProductDto::getId,
                         Collectors.summingLong(SaveOrderProductDto::getQuantity)
                 )).forEach((productId, totalQuantity) ->
-                        addProduct(order, productId, totalQuantity));
+                        addProductInOrder(order, productId, totalQuantity));
         return orderRepository.save(order);
     }
 
-    private void addProduct(Order order, UUID productId, Long quantity) {
+    /**
+     * Добавляет товар в заказ.
+     *
+     * @param order     Заказ, в который добавляется товар.
+     * @param productId Идентификатор товара, который добавляется в заказ.
+     * @param quantity  Количество товара, которое добавляется в заказ.
+     * @throws IncorrectOrderStatusException если статус заказа не является CREATED.
+     * @throws IllegalArgumentException      если товар недоступен или если его количество не соответствует требуемому.
+     */
+    private void addProductInOrder(Order order, UUID productId, Long quantity) {
         if (order.getStatus() != OrderStatus.CREATED) {
-            throw new IllegalArgumentException("The order can't be changed anymore");
+            throw new IncorrectOrderStatusException(order.getStatus().name());
         }
         final Product currentProduct = productService.getProductById(productId);
         if (!currentProduct.getIsAvailable()) {
@@ -97,17 +121,36 @@ public class OrderService {
     }
 
     /**
-     * Удалить товар по его идентификатору.
+     * Изменить статус заказа.
      *
-     * @param orderId Идентификатор товара, который нужно удалить.
-     * @return True, если товар успешно удален, в противном случае - false.
+     * @param orderId Идентификатор заказа.
+     * @param status  Новый статус заказа.
+     * @return Обновленный заказ с новым статусом.
      */
     @Transactional
-    public boolean deleteOrder(UUID orderId) {
-        if (orderRepository.existsById(orderId)) {
-            orderRepository.deleteById(orderId);
-            return true;
+    public Order updateOrderStatus(UUID orderId, SaveOrderStatusDto status) {
+        Order order = getOrderById(orderId);
+        order.setStatus(status.getStatus());
+        return orderRepository.save(order);
+    }
+
+    /**
+     * Удалить заказ по его идентификатору.
+     *
+     * @param orderId Идентификатор заказа, который нужно удалить.
+     */
+    @Transactional
+    public void deleteOrder(UUID orderId) {
+        Order order = getOrderById(orderId);
+        if (order.getStatus() != OrderStatus.CREATED) {
+            throw new IncorrectOrderStatusException(order.getStatus().name());
         }
-        return false;
+        order.setStatus(OrderStatus.CANCELLED);
+        order.getProducts().forEach(orderProduct -> {
+            Product product = productService.getProductById(orderProduct.getProduct().getId());
+            product.setQuantity(product.getQuantity() + orderProduct.getQuantity());
+            productService.updateProduct(product.getId(), new SaveProductDto(product));
+        });
+        orderRepository.save(order);
     }
 }

@@ -15,7 +15,8 @@ import java.util.UUID;
 /**
  * Сущность, представляющая товар в системе.
  */
-@Entity(name = "products")
+@Entity
+@Table(name = "products")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

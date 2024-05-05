@@ -3,13 +3,11 @@ package com.mediasoft.warehouse.dto;
 import com.mediasoft.warehouse.model.Customer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
- * DTO для сохранения или изменения {@link Customer}.
+ * DTO для отображения {@link Customer}.
  */
 @Getter
-@Setter
 @NoArgsConstructor
 public class ViewCustomerDto {
     /**

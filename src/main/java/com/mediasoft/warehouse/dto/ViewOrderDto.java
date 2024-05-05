@@ -1,13 +1,16 @@
 package com.mediasoft.warehouse.dto;
 
 import com.mediasoft.warehouse.model.Order;
-import com.mediasoft.warehouse.model.OrderStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * DTO для отображения {@link Order}.
+ */
 @Getter
 @NoArgsConstructor
 public class ViewOrderDto {
@@ -17,34 +20,28 @@ public class ViewOrderDto {
     private UUID id;
 
     /**
-     * Статус заказа.
-     */
-    private OrderStatus status;
-
-    /**
-     * Адрес для доставки заказа.
-     */
-    private String deliveryAddress;
-
-    /**
      * Список товаров заказа.
      */
     private List<ViewOrderProductDto> products;
 
     /**
-     * Идентификатор покупателя.
+     * Итоговая сумма заказа.
      */
-    private Long customerId;
+    private BigDecimal totalPrice;
 
     public ViewOrderDto(Order order) {
         this.id = order.getId();
-        this.status = order.getStatus();
-        this.deliveryAddress = order.getDeliveryAddress();
-        this.customerId = order.getCustomer().getId();
+        this.totalPrice = BigDecimal.ZERO;
         if (order.getProducts() != null && !order.getProducts().isEmpty())
             this.products = order.getProducts()
                     .stream()
-                    .map(x -> new ViewOrderProductDto(new ViewProductDto(x.getProduct()),
-                            x.getId().getOrderId(), x.getQuantity(), x.getFrozenPrice())).toList();
+                    .map(x -> {
+                        totalPrice = totalPrice.add(x.getFrozenPrice().multiply(BigDecimal.valueOf(x.getQuantity())));
+                        return new ViewOrderProductDto(
+                                x.getProduct().getId(),
+                                x.getProduct().getName(),
+                                x.getQuantity(),
+                                x.getFrozenPrice());
+                    }).toList();
     }
 }

@@ -14,7 +14,8 @@ import java.util.List;
 /**
  * Сущность, представляющая покупателя в системе.
  */
-@Entity(name = "customers")
+@Entity
+@Table(name = "customers")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
