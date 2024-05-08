@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -26,12 +25,14 @@ public class OrderController {
     /**
      * Создать заказ.
      *
-     * @param saveOrderDto Информация о новом заказе.
+     * @param saveOrderDto     Информация о новом заказе.
+     * @param customerIdHeader Идентификатор покупателя, вызвавшего запрос.
      * @return Информация о созданном заказе.
      */
     @PostMapping
-    public ViewOrderDto create(@RequestBody @Valid SaveOrderDto saveOrderDto) {
-        return new ViewOrderDto(orderService.createOrder(saveOrderDto, 1L));
+    public ViewOrderDto create(@RequestBody @Valid SaveOrderDto saveOrderDto,
+                               @RequestHeader("customerId") Long customerIdHeader) {
+        return new ViewOrderDto(orderService.createOrder(saveOrderDto, customerIdHeader));
     }
 
     @PostMapping("/{id}/confirm")
@@ -42,16 +43,14 @@ public class OrderController {
     /**
      * Получает информацию о заказе по его идентификатору.
      *
-     * @param id Идентификатор заказа.
+     * @param id               Идентификатор заказа.
+     * @param customerIdHeader Идентификатор покупателя, вызвавшего запрос.
      * @return Информация о заказе.
      * @throws ForbiddenException если пользователь не имеет доступа к заказу.
      */
     @GetMapping("/{id}")
-    public ViewOrderDto getById(@PathVariable UUID id) {
-        if (new Random().nextBoolean()) {
-            throw new ForbiddenException("You don't have access to other users' orders");
-        }
-        return new ViewOrderDto(orderService.getOrderById(id));
+    public ViewOrderDto getById(@PathVariable UUID id, @RequestHeader("customerId") Long customerIdHeader) {
+        return new ViewOrderDto(orderService.getOrderById(id, customerIdHeader));
     }
 
     /**
@@ -59,16 +58,15 @@ public class OrderController {
      *
      * @param id                  Идентификатор заказа.
      * @param saveOrderProductDto Информация об обновленном заказе.
+     * @param customerIdHeader    Идентификатор покупателя, вызвавшего запрос.
      * @return Информация об обновленном заказе.
      * @throws ForbiddenException если пользователь не имеет доступа к заказу.
      */
     @PatchMapping("/{id}")
     public ViewOrderDto update(@PathVariable UUID id,
-                               @RequestBody @Valid List<SaveOrderProductDto> saveOrderProductDto) {
-        if (new Random().nextBoolean()) {
-            throw new ForbiddenException("You don't have access to other users' orders");
-        }
-        return new ViewOrderDto(orderService.updateOrder(id, saveOrderProductDto));
+                               @RequestBody @Valid List<SaveOrderProductDto> saveOrderProductDto,
+                               @RequestHeader("customerId") Long customerIdHeader) {
+        return new ViewOrderDto(orderService.updateOrder(id, saveOrderProductDto, customerIdHeader));
     }
 
     /**
@@ -86,16 +84,14 @@ public class OrderController {
     /**
      * Удаляет заказ по его идентификатору.
      *
-     * @param id Идентификатор заказа.
+     * @param id               Идентификатор заказа.
+     * @param customerIdHeader Идентификатор покупателя, вызвавшего запрос.
      * @return true, если заказ успешно удален.
      * @throws ForbiddenException если пользователь не имеет доступа к заказу.
      */
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable UUID id) {
-        if (new Random().nextBoolean()) {
-            throw new ForbiddenException("You don't have access to other users' orders");
-        }
-        orderService.deleteOrder(id);
+    public boolean delete(@PathVariable UUID id, @RequestHeader("customerId") Long customerIdHeader) {
+        orderService.deleteOrder(id, customerIdHeader);
         return true;
     }
 }
