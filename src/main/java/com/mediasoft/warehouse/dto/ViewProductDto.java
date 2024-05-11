@@ -1,10 +1,12 @@
 package com.mediasoft.warehouse.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mediasoft.warehouse.model.Currency;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.enums.ProductCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +17,7 @@ import java.util.UUID;
  * DTO для отображения {@link Product}.
  */
 @Getter
+@Setter
 @NoArgsConstructor
 public class ViewProductDto {
     /**
@@ -65,6 +68,11 @@ public class ViewProductDto {
     private LocalDate createdDate;
 
     /**
+     * Валюта цены товара.
+     */
+    private Currency currency;
+
+    /**
      * Создает экземпляр класса на основе объекта {@link Product}.
      *
      * @param product Объект {@link Product}, для которого создается DTO.
@@ -79,5 +87,6 @@ public class ViewProductDto {
         this.quantity = product.getQuantity();
         this.lastQuantityChangeDate = product.getLastQuantityChangeDate();
         this.createdDate = product.getCreatedDate();
+        this.currency = Currency.RUB;
     }
 }

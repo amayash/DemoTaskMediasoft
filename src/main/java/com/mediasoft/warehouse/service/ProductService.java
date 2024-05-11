@@ -3,6 +3,7 @@ package com.mediasoft.warehouse.service;
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.error.exception.DuplicateArticleException;
 import com.mediasoft.warehouse.error.exception.ProductNotFoundException;
+import com.mediasoft.warehouse.filter.currency.CurrencyProvider;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.repository.ProductRepository;
 import com.mediasoft.warehouse.search.AbstractProductFilter;
@@ -15,6 +16,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +30,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final CurrencyProvider currencyProvider;
+    private final ExchangeRateProvider exchangeRateProvider;
 
     /**
      * Получить все товары с пагинацией.
@@ -37,7 +42,10 @@ public class ProductService {
      */
     @Transactional(readOnly = true)
     public Page<Product> getAllProducts(int page, int size) {
-        return productRepository.findAll(PageRequest.of(page - 1, size));
+        BigDecimal exchangeRate = exchangeRateProvider.getExchangeRate(currencyProvider.getCurrency());
+        Page<Product> products = productRepository.findAll(PageRequest.of(page - 1, size));
+        products.forEach(product -> updateProductPrice(product, exchangeRate));
+        return products;
     }
 
     /**
@@ -80,8 +88,12 @@ public class ProductService {
      */
     @Transactional(readOnly = true)
     public Page<Product> getAllProducts(String search, int page, int size) {
-        return productRepository.findDistinctByNameContainingOrArticleContainingOrDescriptionContaining(search,
-                search, search, PageRequest.of(page - 1, size));
+        BigDecimal exchangeRate = exchangeRateProvider.getExchangeRate(currencyProvider.getCurrency());
+        Page<Product> products =
+                productRepository.findDistinctByNameContainingOrArticleContainingOrDescriptionContaining(search,
+                        search, search, PageRequest.of(page - 1, size));
+        products.forEach(product -> updateProductPrice(product, exchangeRate));
+        return products;
     }
 
     /**
@@ -93,8 +105,20 @@ public class ProductService {
      */
     @Transactional(readOnly = true)
     public Product getProductById(UUID productId) {
-        return productRepository.findById(productId)
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
+        updateProductPrice(product, exchangeRateProvider.getExchangeRate(currencyProvider.getCurrency()));
+        return product;
+    }
+
+    /**
+     * Обновляет цену товара в соответствии с указанным курсом валют.
+     *
+     * @param product      Товар, цена которого будет изменена по курсу.
+     * @param exchangeRate Обменный курс, на который будет умножена текущая цена товара.
+     */
+    private void updateProductPrice(Product product, BigDecimal exchangeRate) {
+        product.setPrice(product.getPrice().multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP));
     }
 
     /**

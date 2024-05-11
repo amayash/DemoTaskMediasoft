@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/Warehouse
     username: role_for_spring
-    password: ${dbPassword}
+    password: 123
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -18,8 +18,15 @@ spring:
 
 app:
   scheduling:
-    mode: optimization
+    mode: none
     period: 60000 #ms
     priceIncreasePercentage: 10.1
     optimization:
       spring-batch: false
+  rest:
+    currency-service:
+      host: http://localhost:8081
+      methods:
+        get-currency: /currencies
+      mock:
+        enabled: false
