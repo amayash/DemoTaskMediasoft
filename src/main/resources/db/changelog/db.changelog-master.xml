@@ -8,4 +8,5 @@
     <include file="/db/changelog/changeset/create-customers-table.xml"/>
     <include file="/db/changelog/changeset/create-orders-table.xml"/>
     <include file="/db/changelog/changeset/create-order-product-table.xml"/>
+    <include file="/db/changelog/changeset/rename-tables-to-singular.xml"/>
 </databaseChangeLog>

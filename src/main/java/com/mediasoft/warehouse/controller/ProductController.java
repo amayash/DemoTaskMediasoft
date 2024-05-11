@@ -3,7 +3,7 @@ package com.mediasoft.warehouse.controller;
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.dto.ViewProductDto;
 import com.mediasoft.warehouse.filter.currency.CurrencyProvider;
-import com.mediasoft.warehouse.model.Currency;
+import com.mediasoft.warehouse.model.enums.Currency;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.service.ProductService;
 import com.mediasoft.warehouse.search.AbstractProductFilter;

@@ -1,10 +1,11 @@
 package com.mediasoft.warehouse.model;
 
-import com.mediasoft.warehouse.dto.SaveOrderDto;
+import com.mediasoft.warehouse.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,12 +45,7 @@ public class Order {
     /**
      * Список товаров заказа.
      */
-    @OneToMany(mappedBy = "order", cascade =
-            {
-                    CascadeType.REMOVE,
-                    CascadeType.MERGE,
-                    CascadeType.PERSIST
-            }, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
     private List<OrderProduct> products;
 
     /**
@@ -57,29 +53,6 @@ public class Order {
      */
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
+    @Fetch(FetchMode.JOIN)
     private Customer customer;
-
-    /**
-     * Добавление товара в заказ.
-     *
-     * @param orderProduct Товар, который добавляется в заказ.
-     */
-    public void addProduct(OrderProduct orderProduct) {
-        if (products == null) {
-            products = new ArrayList<>();
-        }
-        if (!products.contains(orderProduct))
-            this.products.add(orderProduct);
-    }
-
-    /**
-     * Конструктор, создающий объект класса на основе объекта {@link SaveOrderDto}.
-     *
-     * @param saveOrderDto Объект {@link SaveOrderDto}, на основе которого создается заказ.
-     */
-    public Order(SaveOrderDto saveOrderDto) {
-        this.status = OrderStatus.CREATED;
-        this.deliveryAddress = saveOrderDto.getDeliveryAddress();
-        this.products = new ArrayList<>();
-    }
 }

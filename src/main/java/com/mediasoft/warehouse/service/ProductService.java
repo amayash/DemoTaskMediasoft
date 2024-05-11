@@ -21,6 +21,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -182,5 +183,21 @@ public class ProductService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Получить список товаров по идентификаторам
+     *
+     * @param productIds Идентификаторы товаров.
+     * @return Товары с указанными идентификаторами.
+     * @throws IllegalArgumentException, если не все товары найдены.
+     */
+    @Transactional(readOnly = true)
+    public List<Product> getProductsByIds(Set<UUID> productIds) {
+        List<Product> products = productRepository.findAllById(productIds);
+        if (products.size() != productIds.size()) {
+            throw new IllegalArgumentException("Not all products were found.");
+        }
+        return products;
     }
 }

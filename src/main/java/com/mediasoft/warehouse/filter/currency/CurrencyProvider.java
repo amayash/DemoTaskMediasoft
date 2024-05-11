@@ -1,6 +1,6 @@
 package com.mediasoft.warehouse.filter.currency;
 
-import com.mediasoft.warehouse.model.Currency;
+import com.mediasoft.warehouse.model.enums.Currency;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;

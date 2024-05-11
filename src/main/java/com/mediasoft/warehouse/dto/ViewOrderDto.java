@@ -1,6 +1,7 @@
 package com.mediasoft.warehouse.dto;
 
 import com.mediasoft.warehouse.model.Order;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.UUID;
  */
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class ViewOrderDto {
     /**
      * Идентификатор заказа.
@@ -28,20 +30,4 @@ public class ViewOrderDto {
      * Итоговая сумма заказа.
      */
     private BigDecimal totalPrice;
-
-    public ViewOrderDto(Order order) {
-        this.id = order.getId();
-        this.totalPrice = BigDecimal.ZERO;
-        if (order.getProducts() != null && !order.getProducts().isEmpty())
-            this.products = order.getProducts()
-                    .stream()
-                    .map(x -> {
-                        totalPrice = totalPrice.add(x.getFrozenPrice().multiply(BigDecimal.valueOf(x.getQuantity())));
-                        return new ViewOrderProductDto(
-                                x.getProduct().getId(),
-                                x.getProduct().getName(),
-                                x.getQuantity(),
-                                x.getFrozenPrice());
-                    }).toList();
-    }
 }

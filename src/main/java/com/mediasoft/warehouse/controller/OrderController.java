@@ -4,8 +4,7 @@ import com.mediasoft.warehouse.dto.SaveOrderDto;
 import com.mediasoft.warehouse.dto.SaveOrderProductDto;
 import com.mediasoft.warehouse.dto.SaveOrderStatusDto;
 import com.mediasoft.warehouse.dto.ViewOrderDto;
-import com.mediasoft.warehouse.error.exception.ForbiddenException;
-import com.mediasoft.warehouse.service.OrderService;
+import com.mediasoft.warehouse.service.OrderServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,24 +19,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/orders")
 public class OrderController {
-    private final OrderService orderService;
+    private final OrderServiceImpl orderServiceImpl;
 
     /**
      * Создать заказ.
      *
      * @param saveOrderDto     Информация о новом заказе.
      * @param customerIdHeader Идентификатор покупателя, вызвавшего запрос.
-     * @return Информация о созданном заказе.
+     * @return Идентификатор созданного заказа.
      */
     @PostMapping
-    public ViewOrderDto create(@RequestBody @Valid SaveOrderDto saveOrderDto,
-                               @RequestHeader("customerId") Long customerIdHeader) {
-        return new ViewOrderDto(orderService.createOrder(saveOrderDto, customerIdHeader));
+    public UUID create(@RequestBody @Valid SaveOrderDto saveOrderDto,
+                       @RequestHeader("customerId") Long customerIdHeader) {
+        return orderServiceImpl.createOrder(saveOrderDto, customerIdHeader).getId();
     }
 
     @PostMapping("/{id}/confirm")
-    public ViewOrderDto confirm(@PathVariable UUID id) {
-        return null;
+    public void confirm(@PathVariable UUID id) {
     }
 
     /**
@@ -46,11 +44,10 @@ public class OrderController {
      * @param id               Идентификатор заказа.
      * @param customerIdHeader Идентификатор покупателя, вызвавшего запрос.
      * @return Информация о заказе.
-     * @throws ForbiddenException если пользователь не имеет доступа к заказу.
      */
     @GetMapping("/{id}")
     public ViewOrderDto getById(@PathVariable UUID id, @RequestHeader("customerId") Long customerIdHeader) {
-        return new ViewOrderDto(orderService.getOrderById(id, customerIdHeader));
+        return orderServiceImpl.getViewOrderById(id, customerIdHeader);
     }
 
     /**
@@ -59,14 +56,13 @@ public class OrderController {
      * @param id                  Идентификатор заказа.
      * @param saveOrderProductDto Информация об обновленном заказе.
      * @param customerIdHeader    Идентификатор покупателя, вызвавшего запрос.
-     * @return Информация об обновленном заказе.
-     * @throws ForbiddenException если пользователь не имеет доступа к заказу.
+     * @return Идентификатор обновленного заказа.
      */
     @PatchMapping("/{id}")
-    public ViewOrderDto update(@PathVariable UUID id,
-                               @RequestBody @Valid List<SaveOrderProductDto> saveOrderProductDto,
-                               @RequestHeader("customerId") Long customerIdHeader) {
-        return new ViewOrderDto(orderService.updateOrder(id, saveOrderProductDto, customerIdHeader));
+    public UUID update(@PathVariable UUID id,
+                       @RequestBody @Valid List<SaveOrderProductDto> saveOrderProductDto,
+                       @RequestHeader("customerId") Long customerIdHeader) {
+        return orderServiceImpl.updateOrder(id, saveOrderProductDto, customerIdHeader).getId();
     }
 
     /**
@@ -74,11 +70,10 @@ public class OrderController {
      *
      * @param id                 Идентификатор заказа.
      * @param saveOrderStatusDto Информация об обновленном статусе заказа.
-     * @return Информация об обновленном заказе.
      */
     @PatchMapping("/{id}/status")
-    public ViewOrderDto updateStatus(@PathVariable UUID id, @RequestBody @Valid SaveOrderStatusDto saveOrderStatusDto) {
-        return new ViewOrderDto(orderService.updateOrderStatus(id, saveOrderStatusDto));
+    public void updateStatus(@PathVariable UUID id, @RequestBody @Valid SaveOrderStatusDto saveOrderStatusDto) {
+        orderServiceImpl.updateOrderStatus(id, saveOrderStatusDto);
     }
 
     /**
@@ -86,12 +81,9 @@ public class OrderController {
      *
      * @param id               Идентификатор заказа.
      * @param customerIdHeader Идентификатор покупателя, вызвавшего запрос.
-     * @return true, если заказ успешно удален.
-     * @throws ForbiddenException если пользователь не имеет доступа к заказу.
      */
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable UUID id, @RequestHeader("customerId") Long customerIdHeader) {
-        orderService.deleteOrder(id, customerIdHeader);
-        return true;
+    public void delete(@PathVariable UUID id, @RequestHeader("customerId") Long customerIdHeader) {
+        orderServiceImpl.deleteOrder(id, customerIdHeader);
     }
 }

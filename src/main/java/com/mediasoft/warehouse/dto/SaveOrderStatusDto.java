@@ -1,7 +1,7 @@
 package com.mediasoft.warehouse.dto;
 
 import com.mediasoft.warehouse.model.Order;
-import com.mediasoft.warehouse.model.OrderStatus;
+import com.mediasoft.warehouse.model.enums.OrderStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

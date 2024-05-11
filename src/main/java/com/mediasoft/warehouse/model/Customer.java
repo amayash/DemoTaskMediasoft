@@ -1,21 +1,18 @@
 package com.mediasoft.warehouse.model;
 
-import com.mediasoft.warehouse.dto.SaveCustomerDto;
-import com.mediasoft.warehouse.dto.SaveProductDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Сущность, представляющая покупателя в системе.
  */
 @Entity
-@Table(name = "customers")
+@Table(name = "customer")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -52,16 +49,4 @@ public class Customer {
      */
     @OneToMany(mappedBy = "customer")
     private List<Order> orders;
-
-    /**
-     * Конструктор, создающий объект класса на основе объекта {@link SaveCustomerDto}.
-     *
-     * @param saveProductDto Объект {@link SaveProductDto}, на основе которого создается покупатель.
-     */
-    public Customer(SaveCustomerDto saveProductDto) {
-        this.login = saveProductDto.getLogin();
-        this.email = saveProductDto.getEmail();
-        this.isActive = true;
-        this.orders = new ArrayList<>();
-    }
 }

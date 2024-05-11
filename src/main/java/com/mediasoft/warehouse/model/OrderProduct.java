@@ -1,6 +1,7 @@
 package com.mediasoft.warehouse.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
 public class OrderProduct {
     /**
      * Идентификатор, состоящий из идентификаторов заказа и товара.
@@ -49,19 +51,4 @@ public class OrderProduct {
      */
     @Column(name = "frozen_price", nullable = false)
     private BigDecimal frozenPrice;
-
-    /**
-     * Конструктор для создания объекта OrderProduct.
-     *
-     * @param order    Заказ, к которому относится данный товар.
-     * @param product  Товар, который является частью данного заказа.
-     * @param quantity Количество данного товара в заказе.
-     */
-    public OrderProduct(Order order, Product product, Long quantity) {
-        this.order = order;
-        this.product = product;
-        this.quantity = quantity;
-        this.frozenPrice = product.getPrice();
-        this.id = new OrderProductKey(order.getId(), product.getId());
-    }
 }

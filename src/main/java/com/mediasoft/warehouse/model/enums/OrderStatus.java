@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.model;
+package com.mediasoft.warehouse.model.enums;
 
 /**
  * Перечисление для статуса заказа.
