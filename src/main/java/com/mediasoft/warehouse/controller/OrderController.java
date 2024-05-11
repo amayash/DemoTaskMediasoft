@@ -4,6 +4,7 @@ import com.mediasoft.warehouse.dto.SaveOrderDto;
 import com.mediasoft.warehouse.dto.SaveOrderProductDto;
 import com.mediasoft.warehouse.dto.SaveOrderStatusDto;
 import com.mediasoft.warehouse.dto.ViewOrderDto;
+import com.mediasoft.warehouse.service.OrderService;
 import com.mediasoft.warehouse.service.OrderServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/orders")
 public class OrderController {
-    private final OrderServiceImpl orderServiceImpl;
+    private final OrderService orderService;
 
     /**
      * Создать заказ.
@@ -31,7 +32,7 @@ public class OrderController {
     @PostMapping
     public UUID create(@RequestBody @Valid SaveOrderDto saveOrderDto,
                        @RequestHeader("customerId") Long customerIdHeader) {
-        return orderServiceImpl.createOrder(saveOrderDto, customerIdHeader).getId();
+        return orderService.createOrder(saveOrderDto, customerIdHeader).getId();
     }
 
     @PostMapping("/{id}/confirm")
@@ -47,7 +48,7 @@ public class OrderController {
      */
     @GetMapping("/{id}")
     public ViewOrderDto getById(@PathVariable UUID id, @RequestHeader("customerId") Long customerIdHeader) {
-        return orderServiceImpl.getViewOrderById(id, customerIdHeader);
+        return orderService.getViewOrderById(id, customerIdHeader);
     }
 
     /**
@@ -62,7 +63,7 @@ public class OrderController {
     public UUID update(@PathVariable UUID id,
                        @RequestBody @Valid List<SaveOrderProductDto> saveOrderProductDto,
                        @RequestHeader("customerId") Long customerIdHeader) {
-        return orderServiceImpl.updateOrder(id, saveOrderProductDto, customerIdHeader).getId();
+        return orderService.updateOrder(id, saveOrderProductDto, customerIdHeader).getId();
     }
 
     /**
@@ -73,7 +74,7 @@ public class OrderController {
      */
     @PatchMapping("/{id}/status")
     public void updateStatus(@PathVariable UUID id, @RequestBody @Valid SaveOrderStatusDto saveOrderStatusDto) {
-        orderServiceImpl.updateOrderStatus(id, saveOrderStatusDto);
+        orderService.updateOrderStatus(id, saveOrderStatusDto);
     }
 
     /**
@@ -84,6 +85,6 @@ public class OrderController {
      */
     @DeleteMapping("/{id}")
     public void delete(@PathVariable UUID id, @RequestHeader("customerId") Long customerIdHeader) {
-        orderServiceImpl.deleteOrder(id, customerIdHeader);
+        orderService.deleteOrder(id, customerIdHeader);
     }
 }

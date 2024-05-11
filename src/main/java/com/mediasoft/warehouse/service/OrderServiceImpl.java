@@ -41,9 +41,12 @@ public class OrderServiceImpl implements OrderService {
      * @throws OrderNotFoundException, если заказ не найден.
      */
     public ViewOrderDto getViewOrderById(UUID orderId, Long customerIdHeader) {
-        if (!orderRepository.existsById(orderId)) {
+        Order order = orderRepository.findByIdWithoutProducts(orderId);
+        if (order == null) {
             throw new OrderNotFoundException(orderId);
         }
+        checkCustomerIdMatchers(order.getCustomer().getId(), customerIdHeader);
+
         List<ViewOrderProductDto> products = orderRepository.findViewOrderProductsByOrderId(orderId);
         BigDecimal totalPrice = products.stream()
                 .map(product -> product.getFrozenPrice().multiply(BigDecimal.valueOf(product.getQuantity())))
@@ -84,7 +87,6 @@ public class OrderServiceImpl implements OrderService {
         order.setDeliveryAddress(saveOrderDto.getDeliveryAddress());
         order.setProducts(new ArrayList<>());
         order.setCustomer(customerService.getCustomerById(customerId));
-        orderRepository.save(order);
 
         Map<UUID, Long> productIdsAndQuantities = saveOrderDto.getProducts().stream()
                 .collect(Collectors.groupingBy(

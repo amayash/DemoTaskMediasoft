@@ -27,6 +27,18 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     Optional<Order> findById(UUID uuid);
 
     /**
+     * Получить заказ по идентификатору.
+     *
+     * @param uuid Идентификатор заказа.
+     * @return Заказ.
+     */
+    @Query("SELECT o " +
+            "FROM Order o " +
+            "WHERE o.id = :uuid")
+    @EntityGraph(attributePaths = "customer")
+    Order findByIdWithoutProducts(UUID uuid);
+
+    /**
      * Получить информацию о том, существует ли заказ с указанным идентификатором.
      *
      * @param uuid Идентификатор для проверки.
@@ -34,6 +46,12 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
      */
     boolean existsById(UUID uuid);
 
+    /**
+     * Получить товары заказа.
+     *
+     * @param orderId Идентификатор заказа.
+     * @return Товары заказа.
+     */
     @Query("SELECT new com.mediasoft.warehouse.dto.ViewOrderProductDto(op.product.id, op.product.name, op.quantity, op.frozenPrice) " +
             "FROM OrderProduct op " +
             "WHERE op.order.id = :orderId")

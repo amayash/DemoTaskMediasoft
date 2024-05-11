@@ -9,11 +9,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
-    /**
-     * Получить информацию о том, существует ли покупатель с указанным логином.
-     *
-     * @param login Логин для проверки.
-     * @return Флаг, указывающий существует ли покупатель с указанным логином.
-     */
-    boolean existsByLogin(String login);
 }
