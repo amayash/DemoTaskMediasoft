@@ -1,6 +1,7 @@
 package com.mediasoft.warehouse.model;
 
 import com.mediasoft.warehouse.dto.SaveProductDto;
+import com.mediasoft.warehouse.model.enums.ProductCategory;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

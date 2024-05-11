@@ -27,3 +27,10 @@ app:
     priceIncreasePercentage: 10.1
     optimization:
       spring-batch: false
+  rest:
+    currency-service:
+      host: http://localhost:8081
+      methods:
+        get-currency: /currencies
+      mock:
+        enabled: false
