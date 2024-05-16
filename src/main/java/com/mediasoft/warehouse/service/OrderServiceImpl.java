@@ -108,7 +108,6 @@ public class OrderServiceImpl implements OrderService {
             final OrderProduct newOrderProduct = new OrderProduct(new OrderProductKey(order.getId(), productId), order, product, quantity, product.getPrice());
             order.getProducts().add(newOrderProduct);
             product.setQuantity(currentProductCapacity - quantity);
-            productService.updateProduct(productId, new SaveProductDto(product));
         });
         return orderRepository.save(order);
     }
@@ -161,7 +160,6 @@ public class OrderServiceImpl implements OrderService {
                 updatedOrderProduct.setFrozenPrice(product.getPrice());
             }
             product.setQuantity(currentProductCapacity - quantity);
-            productService.updateProduct(productId, new SaveProductDto(product));
         });
         return orderRepository.save(order);
     }

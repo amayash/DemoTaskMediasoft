@@ -45,7 +45,7 @@ public class Order {
     /**
      * Список товаров заказа.
      */
-    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "order", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<OrderProduct> products;
 
     /**
