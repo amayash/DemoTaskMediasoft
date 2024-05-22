@@ -1,17 +1,15 @@
 package com.mediasoft.warehouse.controller;
 
-import com.mediasoft.warehouse.dto.SaveOrderDto;
-import com.mediasoft.warehouse.dto.SaveOrderProductDto;
-import com.mediasoft.warehouse.dto.SaveOrderStatusDto;
-import com.mediasoft.warehouse.dto.ViewOrderDto;
+import com.mediasoft.warehouse.dto.*;
 import com.mediasoft.warehouse.service.OrderService;
-import com.mediasoft.warehouse.service.OrderServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Rest-API контроллер для заказов.
@@ -37,6 +35,16 @@ public class OrderController {
 
     @PostMapping("/{id}/confirm")
     public void confirm(@PathVariable UUID id) {
+    }
+
+    /**
+     * Получает информацию о заказах по продуктам.
+     *
+     * @return Информация о заказах по продуктам.
+     */
+    @GetMapping
+    public CompletableFuture<Map<UUID, List<ViewOrderFromMapDto>>> getAllGroupedByProduct() {
+        return orderService.getOrdersGroupedByProduct();
     }
 
     /**
