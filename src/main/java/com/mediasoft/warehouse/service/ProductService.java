@@ -21,6 +21,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -148,8 +149,7 @@ public class ProductService {
      */
     @Transactional
     public Product updateProduct(UUID productId, SaveProductDto updatedProductDto) {
-        Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
+        Product existingProduct = getProductById(productId);
         String article = updatedProductDto.getArticle();
         if (productRepository.existsByArticle(article)
                 && !existingProduct.getArticle().equals(article)) {
@@ -161,6 +161,7 @@ public class ProductService {
         existingProduct.setDescription(updatedProductDto.getDescription());
         existingProduct.setCategory(updatedProductDto.getCategory());
         existingProduct.setPrice(updatedProductDto.getPrice());
+        existingProduct.setIsAvailable(updatedProductDto.getIsAvailable());
         if (!existingProduct.getQuantity().equals(updatedProductDto.getQuantity())) {
             existingProduct.setQuantity(updatedProductDto.getQuantity());
             existingProduct.setLastQuantityChangeDate(LocalDateTime.now());
@@ -182,5 +183,21 @@ public class ProductService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Получить список товаров по идентификаторам
+     *
+     * @param productIds Идентификаторы товаров.
+     * @return Товары с указанными идентификаторами.
+     * @throws IllegalArgumentException, если не все товары найдены.
+     */
+    @Transactional(readOnly = true)
+    public List<Product> getProductsByIds(Set<UUID> productIds) {
+        List<Product> products = productRepository.findAllById(productIds);
+        if (products.size() != productIds.size()) {
+            throw new IllegalArgumentException("Not all products were found.");
+        }
+        return products;
     }
 }

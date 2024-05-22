@@ -3,7 +3,7 @@ package com.mediasoft.warehouse.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediasoft.warehouse.dto.ViewCurrenciesDto;
-import com.mediasoft.warehouse.model.Currency;
+import com.mediasoft.warehouse.model.enums.Currency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.lang.Nullable;

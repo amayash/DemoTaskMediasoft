@@ -57,6 +57,12 @@ public class SaveProductDto {
     @PositiveOrZero(message = "Quantity must be a positive number")
     private Long quantity;
 
+    /**
+     * Доступность товара.
+     */
+    @NotNull(message = "Available status is required")
+    private Boolean isAvailable;
+
     public SaveProductDto(Product product) {
         this.name = product.getName();
         this.article = product.getArticle();
@@ -64,5 +70,6 @@ public class SaveProductDto {
         this.category = product.getCategory();
         this.price = product.getPrice();
         this.quantity = product.getQuantity();
+        this.isAvailable = product.getIsAvailable();
     }
 }

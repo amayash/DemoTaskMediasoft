@@ -1,6 +1,6 @@
 package com.mediasoft.warehouse.filter.currency;
 
-import com.mediasoft.warehouse.model.Currency;
+import com.mediasoft.warehouse.model.enums.Currency;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

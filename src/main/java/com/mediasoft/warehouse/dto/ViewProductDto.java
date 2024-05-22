@@ -1,7 +1,7 @@
 package com.mediasoft.warehouse.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mediasoft.warehouse.model.Currency;
+import com.mediasoft.warehouse.model.enums.Currency;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.enums.ProductCategory;
 import lombok.Getter;
@@ -68,9 +68,14 @@ public class ViewProductDto {
     private LocalDate createdDate;
 
     /**
+     * Доступность товара.
+     */
+    private Boolean isAvailable;
+    /**
      * Валюта цены товара.
      */
     private Currency currency;
+
 
     /**
      * Создает экземпляр класса на основе объекта {@link Product}.
@@ -87,6 +92,7 @@ public class ViewProductDto {
         this.quantity = product.getQuantity();
         this.lastQuantityChangeDate = product.getLastQuantityChangeDate();
         this.createdDate = product.getCreatedDate();
+        this.isAvailable = product.getIsAvailable();
         this.currency = Currency.RUB;
     }
 }
