@@ -25,7 +25,7 @@ public class CurrencyServiceClientImpl implements CurrencyServiceClient {
     public ViewCurrenciesDto getCurrencies() {
         return currencyServiceWebClient
                 .get()
-                .uri(properties.currencyServiceProperties().getMethods().getGetCurrency())
+                .uri(properties.currencyServiceProperties().getHost() + properties.currencyServiceProperties().getMethods().getGetCurrency())
                 .retrieve()
                 .bodyToMono(ViewCurrenciesDto.class)
                 .retry(2)
