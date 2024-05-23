@@ -121,5 +121,6 @@ public class Product {
         this.category = saveProductDto.getCategory();
         this.price = saveProductDto.getPrice();
         this.quantity = saveProductDto.getQuantity();
+        this.isAvailable = saveProductDto.getIsAvailable();
     }
 }
