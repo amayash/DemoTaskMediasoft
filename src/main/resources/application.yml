@@ -1,5 +1,14 @@
 spring:
   profiles:
-    active: prod
+    active: ${springProfile:prod}
   cache:
     type: caffeine
+
+management:
+  server:
+    port: 9090
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health,prometheus

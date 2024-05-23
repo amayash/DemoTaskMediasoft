@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "chart.name" . }}-postgresql-statefulset
+spec:
+  serviceName: "postgres"
+  replicas: {{ .Values.deployment.db.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "chart.name" . }}-postgresql
+  template:
+    metadata:
+      labels:
+        app: {{ include "chart.name" . }}-postgresql
+    spec:
+      containers:
+          - name: postgres
+            image: {{ .Values.deployment.db.image }}
+            ports:
+              - containerPort: {{ .Values.deployment.db.port }}
+                name: postgredb
+            env:
+              - name: POSTGRES_DB
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.secret.name }}
+                    key: DATABASE_NAME
+              - name: POSTGRES_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.secret.name }}
+                    key: SPRING_DATASOURCE_USERNAME
+              - name: POSTGRES_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.secret.name }}
+                    key: SPRING_DATASOURCE_PASSWORD
+            volumeMounts:
+              - name: postgredb
+                mountPath: /var/lib/postgresql/data
+                subPath: postgres
+  volumeClaimTemplates:
+    - metadata:
+        name: postgredb
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.db.name }}
+spec:
+  selector:
+    app: {{ include "chart.name" . }}-postgresql
+  ports:
+      - port: {{ .Values.service.db.port }}
+  type: {{ .Values.service.db.type }}
+  clusterIP: None

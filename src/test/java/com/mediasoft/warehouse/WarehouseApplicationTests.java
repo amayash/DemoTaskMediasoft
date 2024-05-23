@@ -43,6 +43,7 @@ class WarehouseApplicationTests {
         product.setCategory(ProductCategory.BOOKS);
         product.setPrice(BigDecimal.valueOf(500));
         product.setQuantity(15L);
+        product.setIsAvailable(true);
         return product;
     }
 
