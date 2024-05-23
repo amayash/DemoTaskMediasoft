@@ -1,13 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: myspace
   name: demotaskmediasoft-deployment #название пода, которое будет видно в kubectl get pods
   labels:
     app: demotaskmediasoft-app #дополнительные опциональные метки, служат для привязки других структур кубернетеса
 spec:
   strategy:
     type: RollingUpdate #еще есть Recreate
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: demotaskmediasoft-app
