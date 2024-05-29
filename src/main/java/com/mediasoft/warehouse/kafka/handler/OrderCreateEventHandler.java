@@ -1,11 +1,11 @@
 package com.mediasoft.warehouse.kafka.handler;
 
 import com.mediasoft.warehouse.dto.SaveOrderDto;
-import com.mediasoft.warehouse.kafka.data.KafkaEvent;
+import com.mediasoft.warehouse.kafka.event.KafkaEvent;
 import com.mediasoft.warehouse.model.Order;
 import com.mediasoft.warehouse.service.OrderService;
-import com.mediasoft.warehouse.kafka.data.Event;
-import com.mediasoft.warehouse.kafka.data.OrderCreateEventData;
+import com.mediasoft.warehouse.kafka.event.Event;
+import com.mediasoft.warehouse.kafka.event.OrderCreateEventData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;

@@ -1,8 +1,8 @@
 package com.mediasoft.warehouse.kafka.handler;
 
-import com.mediasoft.warehouse.kafka.data.Event;
-import com.mediasoft.warehouse.kafka.data.KafkaEvent;
-import com.mediasoft.warehouse.kafka.data.OrderDeleteEventData;
+import com.mediasoft.warehouse.kafka.event.Event;
+import com.mediasoft.warehouse.kafka.event.KafkaEvent;
+import com.mediasoft.warehouse.kafka.event.OrderDeleteEventData;
 import com.mediasoft.warehouse.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

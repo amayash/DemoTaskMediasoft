@@ -1,6 +1,6 @@
 package com.mediasoft.warehouse.kafka.handler;
 
-import com.mediasoft.warehouse.kafka.data.KafkaEvent;
+import com.mediasoft.warehouse.kafka.event.KafkaEvent;
 
 /**
  * Интерфейс обработчика событий, обобщенного по типу события T, расширяющего KafkaEvent.
