@@ -3,3 +3,9 @@ spring:
     active: prod
   cache:
     type: caffeine
+
+app:
+  kafka:
+    enabled: true
+    bootstrapAddress: minikube:30100
+    groupId: group1
