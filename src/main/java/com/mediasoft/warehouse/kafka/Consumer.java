@@ -21,7 +21,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "app", name = "kafka.enabled")
 public class Consumer {
-    private final Set<EventHandler> eventHandlers;
+    private final Set<EventHandler<KafkaEvent>> eventHandlers;
 
     /**
      * Слушатель Kafka, который принимает сообщения из заданного топика и обрабатывает их.

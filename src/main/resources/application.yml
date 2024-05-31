@@ -7,5 +7,5 @@ spring:
 app:
   kafka:
     enabled: true
-    bootstrapAddress: minikube:30100
+    bootstrapAddress: localhost:9091
     groupId: group1
