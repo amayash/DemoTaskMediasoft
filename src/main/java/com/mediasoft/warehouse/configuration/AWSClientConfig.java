@@ -10,28 +10,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Конфигурационный класс для создания клиента Amazon S3.
+ */
 @Configuration
 @Getter
 @RequiredArgsConstructor
 public class AWSClientConfig {
     private final AwsConfigurationProperties awsConfigurationProperties;
 
-    //    @Bean
-//    public S3Client s3Client() {
-//        return S3Client.builder()
-//                .region(Region.of(awsConfigurationProperties.getRegion()))
-//                .credentialsProvider(StaticCredentialsProvider.create(
-//                        AwsBasicCredentials.create(
-//                                awsConfigurationProperties.getAccessKeyId(),
-//                                awsConfigurationProperties.getSecretAccessKey()
-//                        )))
-//                .build();
-//    }
+    /**
+     * Создает и настраивает экземпляр клиента Amazon S3.
+     *
+     * @return настроенный клиент Amazon S3
+     */
     @Bean
     public AmazonS3 s3Client() {
         return AmazonS3ClientBuilder.standard()
                 .withEndpointConfiguration(new com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration(
-                        "s3.localhost.localstack.cloud:4566",
+                        awsConfigurationProperties.getPath(),
                         awsConfigurationProperties.getRegion()))
                 .withCredentials(new AWSStaticCredentialsProvider(
                         new BasicAWSCredentials(awsConfigurationProperties.getAccessKeyId(),

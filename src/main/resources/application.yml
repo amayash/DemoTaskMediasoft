@@ -8,6 +8,7 @@ spring:
     type: caffeine
 
 aws:
+  path: ${path}
   accessKeyId: ${accessKeyId}
   secretAccessKey: ${secretAccessKey}
   region: ${region}
