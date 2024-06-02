@@ -1,5 +1,6 @@
-package com.mediasoft.warehouse.service;
+package com.mediasoft.warehouse.service.account;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 @Primary
 @ConditionalOnProperty(name = "app.rest.account-service.mock.enabled")
 @Component
+@Slf4j
 public class AccountServiceClientMock implements AccountServiceClient {
     /**
      * Возвращает случайные данные о счетах.
@@ -24,16 +26,20 @@ public class AccountServiceClientMock implements AccountServiceClient {
      */
     @Override
     public CompletableFuture<Map<String, String>> getAccounts(List<String> logins) {
-        CompletableFuture<Map<String, String>> future = new CompletableFuture<>();
-        CompletableFuture.runAsync(() -> {
-            Map<String, String> accountMap = new HashMap<>();
+        return CompletableFuture.supplyAsync(() -> {
+            Map<String, String> map = new HashMap<>();
             Random random = new Random();
             for (String login : logins) {
                 String accountNumber = String.format("%08d", random.nextInt(100000000));
-                accountMap.put(login, accountNumber);
+                map.put(login, accountNumber);
             }
-            future.complete(accountMap);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                log.error(e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+            return map;
         });
-        return future;
     }
 }

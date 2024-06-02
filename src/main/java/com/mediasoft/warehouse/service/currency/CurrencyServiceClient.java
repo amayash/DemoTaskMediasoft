@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.service;
+package com.mediasoft.warehouse.service.currency;
 
 import com.mediasoft.warehouse.dto.ViewCurrenciesDto;
 

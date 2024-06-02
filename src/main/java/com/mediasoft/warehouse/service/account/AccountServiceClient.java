@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.service;
+package com.mediasoft.warehouse.service.account;
 
 import java.util.List;
 import java.util.Map;

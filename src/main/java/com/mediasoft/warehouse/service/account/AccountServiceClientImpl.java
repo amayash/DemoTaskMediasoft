@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.service;
+package com.mediasoft.warehouse.service.account;
 
 import com.mediasoft.warehouse.configuration.properties.RestConfigurationProperties;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @Service
 public class AccountServiceClientImpl implements AccountServiceClient {
-    private final WebClient webClient;
+    private final WebClient accountServiceWebClient;
     private final RestConfigurationProperties properties;
 
     /**
@@ -27,13 +27,12 @@ public class AccountServiceClientImpl implements AccountServiceClient {
      */
     @Override
     public CompletableFuture<Map<String, String>> getAccounts(List<String> logins) {
-        return webClient
+        return accountServiceWebClient
                 .post()
-                .uri(properties.accountServiceProperties().getHost() + properties.accountServiceProperties().getMethods().getGetAccount())
+                .uri(properties.accountServiceProperties().getMethods().getGetAccount())
                 .bodyValue(logins)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, String>>() {
-                })
+                .bodyToMono(new ParameterizedTypeReference<Map<String, String>>() {})
                 .retry(2)
                 .toFuture();
     }

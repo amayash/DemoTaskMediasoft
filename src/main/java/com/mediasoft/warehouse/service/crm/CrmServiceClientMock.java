@@ -1,5 +1,6 @@
-package com.mediasoft.warehouse.service;
+package com.mediasoft.warehouse.service.crm;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 @Primary
 @ConditionalOnProperty(name = "app.rest.crm-service.mock.enabled")
 @Component
+@Slf4j
 public class CrmServiceClientMock implements CrmServiceClient {
     /**
      * Возвращает случайные данные об ИНН.
@@ -24,16 +26,20 @@ public class CrmServiceClientMock implements CrmServiceClient {
      */
     @Override
     public CompletableFuture<Map<String, String>> getCrms(List<String> logins) {
-        CompletableFuture<Map<String, String>> future = new CompletableFuture<>();
-        CompletableFuture.runAsync(() -> {
-            Map<String, String> accountMap = new HashMap<>();
+        return CompletableFuture.supplyAsync(() -> {
+            Map<String, String> map = new HashMap<>();
             Random random = new Random();
             for (String login : logins) {
-                String inn = String.format("%012d", random.nextInt(1000000000));
-                accountMap.put(login, inn);
+                String accountNumber = String.format("%012d", random.nextInt(1000000000));
+                map.put(login, accountNumber);
             }
-            future.complete(accountMap);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                log.error(e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+            return map;
         });
-        return future;
     }
 }

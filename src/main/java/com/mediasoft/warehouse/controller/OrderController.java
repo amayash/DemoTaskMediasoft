@@ -1,15 +1,27 @@
 package com.mediasoft.warehouse.controller;
 
-import com.mediasoft.warehouse.dto.*;
+import com.mediasoft.warehouse.dto.SaveOrderDto;
+import com.mediasoft.warehouse.dto.SaveOrderProductDto;
+import com.mediasoft.warehouse.dto.SaveOrderStatusDto;
+import com.mediasoft.warehouse.dto.ViewOrderDto;
+import com.mediasoft.warehouse.dto.ViewOrderFromMapDto;
 import com.mediasoft.warehouse.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Rest-API контроллер для заказов.
@@ -43,7 +55,7 @@ public class OrderController {
      * @return Информация о заказах по продуктам.
      */
     @GetMapping
-    public CompletableFuture<Map<UUID, List<ViewOrderFromMapDto>>> getAllGroupedByProduct() {
+    public Map<UUID, List<ViewOrderFromMapDto>> getOrdersGroupedByProduct() throws ExecutionException, InterruptedException {
         return orderService.getOrdersGroupedByProduct();
     }
 

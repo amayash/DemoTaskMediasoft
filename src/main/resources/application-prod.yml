@@ -39,10 +39,10 @@ app:
       methods:
         get-account: /accounts
       mock:
-        enabled: false
+        enabled: true
     crm-service:
       host: http://localhost:8081
       methods:
         get-crm: /crm
       mock:
-        enabled: false
+        enabled: true

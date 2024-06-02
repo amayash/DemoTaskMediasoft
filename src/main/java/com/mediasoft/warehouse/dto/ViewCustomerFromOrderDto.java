@@ -15,17 +15,17 @@ public class ViewCustomerFromOrderDto {
     /**
      * Идентификатор покупателя.
      */
-    Long id;
+    private Long id;
     /**
      * Счет покупателя.
      */
-    String accountNumber;
+    private String accountNumber;
     /**
      * Почта покупателя.
      */
-    String email;
+    private String email;
     /**
      * ИНН покупателя.
      */
-    String crm;
+    private String crm;
 }

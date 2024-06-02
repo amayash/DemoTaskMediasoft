@@ -18,21 +18,21 @@ public class ViewOrderFromMapDto {
     /**
      * Идентификатор заказа.
      */
-    UUID id;
+    private UUID id;
     /**
      * Покупатель заказа.
      */
-    ViewCustomerFromOrderDto customer;
+    private ViewCustomerFromOrderDto customer;
     /**
      * Статус заказа.
      */
-    OrderStatus status;
+    private OrderStatus status;
     /**
      * Адрес заказа.
      */
-    String deliveryAddress;
+    private String deliveryAddress;
     /**
      * Количество товаров заказа.
      */
-    Long quantity;
+    private Long quantity;
 }

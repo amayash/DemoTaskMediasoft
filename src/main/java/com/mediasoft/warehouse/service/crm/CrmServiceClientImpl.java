@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.service;
+package com.mediasoft.warehouse.service.crm;
 
 import com.mediasoft.warehouse.configuration.properties.RestConfigurationProperties;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @Service
 public class CrmServiceClientImpl implements CrmServiceClient {
-    private final WebClient webClient;
+    private final WebClient crmServiceWebClient;
     private final RestConfigurationProperties properties;
 
     /**
@@ -27,13 +27,12 @@ public class CrmServiceClientImpl implements CrmServiceClient {
      */
     @Override
     public CompletableFuture<Map<String, String>> getCrms(List<String> logins) {
-        return webClient
+        return crmServiceWebClient
                 .post()
                 .uri(properties.crmServiceProperties().getHost() + properties.crmServiceProperties().getMethods().getGetCrm())
                 .bodyValue(logins)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, String>>() {
-                })
+                .bodyToMono(new ParameterizedTypeReference<Map<String, String>>() {})
                 .retry(2)
                 .toFuture();
     }

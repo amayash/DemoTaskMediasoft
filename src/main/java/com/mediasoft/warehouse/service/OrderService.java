@@ -1,12 +1,16 @@
 package com.mediasoft.warehouse.service;
 
-import com.mediasoft.warehouse.dto.*;
+import com.mediasoft.warehouse.dto.SaveOrderDto;
+import com.mediasoft.warehouse.dto.SaveOrderProductDto;
+import com.mediasoft.warehouse.dto.SaveOrderStatusDto;
+import com.mediasoft.warehouse.dto.ViewOrderDto;
+import com.mediasoft.warehouse.dto.ViewOrderFromMapDto;
 import com.mediasoft.warehouse.model.Order;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Интерфейс для сервиса управления заказами.
@@ -22,5 +26,5 @@ public interface OrderService {
 
     void deleteOrder(UUID orderId, Long customerIdHeader);
 
-    CompletableFuture<Map<UUID, List<ViewOrderFromMapDto>>> getOrdersGroupedByProduct();
+    Map<UUID, List<ViewOrderFromMapDto>> getOrdersGroupedByProduct() throws ExecutionException, InterruptedException;
 }
