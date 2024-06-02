@@ -1,28 +1,14 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: Warehouse
-      POSTGRES_USER: role_for_spring
-      POSTGRES_PASSWORD: ${dbPassword}
-    volumes:
-      - data:/var/lib/postgresql/data
+  localstack:
+    container_name: "LocalStack-Demo"
+    image: localstack/localstack
+    network_mode: bridge
     ports:
-      - "5432:5432"
-  app:
-    build:
-      context: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Warehouse
-      SPRING_DATASOURCE_USERNAME: role_for_spring
-      SPRING_DATASOURCE_PASSWORD: ${PWD}
-
-volumes:
-  data:
+      - "4566:4566" # Edge Port
+      - "4569:4569" # Dynamo DB Port
+      - "4571:4571" # ElasticSearch Port
+      - "4572:4572" # S3 Port
+      - "4574:4574" # Lambda Port
+      - "8080:8080" # Web-UI Port

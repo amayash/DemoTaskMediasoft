@@ -3,16 +3,21 @@ package com.mediasoft.warehouse.controller;
 import com.mediasoft.warehouse.dto.SaveProductDto;
 import com.mediasoft.warehouse.dto.ViewProductDto;
 import com.mediasoft.warehouse.filter.currency.CurrencyProvider;
-import com.mediasoft.warehouse.model.enums.Currency;
 import com.mediasoft.warehouse.model.Product;
-import com.mediasoft.warehouse.service.ProductService;
+import com.mediasoft.warehouse.model.enums.Currency;
 import com.mediasoft.warehouse.search.AbstractProductFilter;
+import com.mediasoft.warehouse.service.FileService;
+import com.mediasoft.warehouse.service.ProductService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +30,40 @@ import java.util.UUID;
 public class ProductController {
     private final ProductService productService;
     private final CurrencyProvider currencyProvider;
+    private final FileService fileService;
+
+    /**
+     * Загружает файл, связанный с товаром.
+     *
+     * @param productId идентификатор товара
+     * @param file      файл для загрузки
+     * @return строка с подтверждением успешной загрузки и S3 ключом
+     * @throws IOException если возникает ошибка ввода-вывода
+     */
+    @PostMapping("/{productId}/upload")
+    public String uploadFile(@PathVariable UUID productId,
+                             @RequestParam("file") MultipartFile file) throws IOException {
+        String key = fileService.uploadFile(file, productId);
+
+        return "File uploaded successfully. Key: " + key;
+    }
+
+    /**
+     * Скачивает изображения, связанные с товаром, в виде ZIP-архива.
+     *
+     * @param productId идентификатор товара
+     * @param response  ответ для передачи ZIP-архива
+     * @throws IOException если возникает ошибка ввода-вывода
+     */
+    @GetMapping("/{productId}/download")
+    public void downloadImages(@PathVariable UUID productId, HttpServletResponse response) throws IOException {
+        response.setContentType("application/zip");
+        response.setHeader("Content-Disposition", "attachment; filename=\"images.zip\"");
+
+        try (OutputStream outputStream = response.getOutputStream()) {
+            fileService.downloadFiles(productId, outputStream);
+        }
+    }
 
     /**
      * Получить список товаров с возможностью фильтрации и пагинацией.

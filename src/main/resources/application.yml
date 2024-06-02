@@ -3,3 +3,12 @@ spring:
     active: prod
   cache:
     type: caffeine
+
+aws:
+  accessKeyId: ${accessKeyId}
+  secretAccessKey: ${secretAccessKey}
+  region: ${region}
+  bucketName: ${bucketName}
+
+server:
+  port: 8081
