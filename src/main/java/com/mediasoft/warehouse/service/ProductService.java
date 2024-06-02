@@ -9,6 +9,8 @@ import com.mediasoft.warehouse.repository.ProductRepository;
 import com.mediasoft.warehouse.search.AbstractProductFilter;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.support.ScopeNotActiveException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
     private final ProductRepository productRepository;
     private final CurrencyProvider currencyProvider;
@@ -108,7 +111,11 @@ public class ProductService {
     public Product getProductById(UUID productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
-        updateProductPrice(product, exchangeRateProvider.getExchangeRate(currencyProvider.getCurrency()));
+        try {
+            updateProductPrice(product, exchangeRateProvider.getExchangeRate(currencyProvider.getCurrency()));
+        } catch (ScopeNotActiveException e) {
+            log.info(e.getMessage());
+        }
         return product;
     }
 
