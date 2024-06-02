@@ -3,3 +3,9 @@ spring:
     active: prod
   cache:
     type: caffeine
+
+app:
+  kafka:
+    enabled: true
+    bootstrapAddress: localhost:9091
+    groupId: group1
