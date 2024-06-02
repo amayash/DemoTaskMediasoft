@@ -1,3 +1,6 @@
+server:
+  port: 8081
+  
 spring:
   profiles:
     active: prod
@@ -10,5 +13,9 @@ aws:
   region: ${region}
   bucketName: ${bucketName}
 
-server:
-  port: 8081
+app:
+  kafka:
+    enabled: true
+    bootstrapAddress: localhost:9091
+    groupId: group1
+
