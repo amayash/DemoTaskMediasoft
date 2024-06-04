@@ -7,10 +7,10 @@
             <column name="product_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="s3_key" type="VARCHAR(255)">
+            <column name="s3_key" type="UUID">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addPrimaryKey columnNames="product_id, s3_key" constraintName="pk_product_images" tableName="product_images"/>
+        <addPrimaryKey columnNames="s3_key" constraintName="pk_product_images" tableName="product_images"/>
     </changeSet>
 </databaseChangeLog>

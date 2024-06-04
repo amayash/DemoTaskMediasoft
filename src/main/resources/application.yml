@@ -16,7 +16,7 @@ aws:
 
 app:
   kafka:
-    enabled: true
+    enabled: false
     bootstrapAddress: localhost:9091
     groupId: group1
 
