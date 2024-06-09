@@ -12,3 +12,9 @@ management:
       base-path: /
       exposure:
         include: health,prometheus
+
+app:
+  kafka:
+    enabled: true
+    bootstrapAddress: localhost:9091
+    groupId: group1
