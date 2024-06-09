@@ -1,0 +1,11 @@
+apiVersion: v2
+name: demotaskmediasoft
+version: 1.0.0
+description: demotaskmediasoft
+type: application
+sources:
+  - https://github.com/amayash/DemoTaskMediasoft
+maintainers:
+  - name: Darya
+    email: amayashimizu89@gmail.com
+appVersion: 1.0.0

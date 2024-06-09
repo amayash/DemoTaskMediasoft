@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: myspace
+  name: demotaskmediasoft-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    #заменяет адрес на /$1, где $1 - первая матч-группа из регулярки на 16 и 23 строке
+    #например: запрос /actuator/health преобразуется в /health (см. 23 строку)
+    #запрос /foo так и останется /foo (см. 16 строку)
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: minikube
+      http:
+        paths:
+          - path: /(.*) #запросы по такому адресу в кластер будут направляться в сервис demo-service на порт 8081
+            pathType: Prefix
+            backend:
+              service:
+                name: demo-service
+                port:
+                  number: 8081 #должно соответствовать порту сервиса, который в свою очередь указывает на 8080 порт пода
+          - path: /actuator/(.*) #запросы по такому адресу в кластер будут направляться в сервис demo-service на порт 9091
+            pathType: Prefix
+            backend:
+              service:
+                name: demo-service
+                port:
+                  number: 9091 #должно соответствовать порту сервиса, который в свою очередь указывает на 9090 порт пода

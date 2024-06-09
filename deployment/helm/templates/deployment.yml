@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: myspace
+  name: demotaskmediasoft-deployment #название пода, которое будет видно в kubectl get pods
+  labels:
+    app: demotaskmediasoft-app #дополнительные опциональные метки, служат для привязки других структур кубернетеса
+spec:
+  strategy:
+    type: RollingUpdate #еще есть Recreate
+  replicas: 3
+  selector:
+    matchLabels:
+      app: demotaskmediasoft-app
+  template:
+    metadata:
+      labels:
+        app: demotaskmediasoft-app
+    spec:
+      containers:
+        - name: demotaskmediasoft-app #имя контейнера внутри пода, может быть несколько разных контейнеров внутри пода
+          image: amayash/demotaskmediasoft:5.0 #название имейджа из докерхаба. кубер сам выкачает имейдж
+          ports:
+            - containerPort: 8080 #номер порта, открытый для контейнера, например тут нужно указать порт, на котором запущен томкат SpringBoot приложения
+              name: app
+          
+          # зонды
+          livenessProbe: #проба жизнеспособности приложения, что оно не зависло
+            httpGet:
+              port: 9090
+              path: /health
+            failureThreshold: 3
+            periodSeconds: 10
+          readinessProbe: #проба готовности приложения к приему трафика
+            httpGet:
+              port: 9090
+              path: /health
+            failureThreshold: 1
+            periodSeconds: 10
+          startupProbe: #проба старта приложения
+            httpGet:
+              port: 9090
+              path: /health
+            failureThreshold: 30
+            periodSeconds: 10
+
+          env: #переменные среды для запуска контейнера, переменная используется SpringBoot приложением
+            - name: springProfile
+              value: {{ .Values.deployment.app.profile }}
+            - name: dbPassword
+              valueFrom:
+                secretKeyRef:
+                  name: demotaskmediasoft-secret
+                  key: SPRING_DATASOURCE_PASSWORD
+            - name: dbUsername
+              valueFrom:
+                secretKeyRef:
+                  name: demotaskmediasoft-secret
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: dbUrl
+              valueFrom:
+                secretKeyRef:
+                  name: demotaskmediasoft-secret
+                  key: DATABASE_URL

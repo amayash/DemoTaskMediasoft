@@ -3,7 +3,7 @@ server:
   
 spring:
   profiles:
-    active: prod
+    active: ${springProfile:prod}
   cache:
     type: caffeine
 
@@ -13,6 +13,15 @@ aws:
   secretAccessKey: ${secretAccessKey}
   region: ${region}
   bucketName: ${bucketName}
+
+management:
+  server:
+    port: 9090
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health,prometheus
 
 app:
   kafka:

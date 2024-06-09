@@ -5,8 +5,11 @@ import com.mediasoft.warehouse.dto.SaveOrderDto;
 import com.mediasoft.warehouse.dto.SaveOrderProductDto;
 import com.mediasoft.warehouse.dto.SaveOrderStatusDto;
 import com.mediasoft.warehouse.dto.SaveProductDto;
+import com.mediasoft.warehouse.dto.ViewCustomerFromOrderDto;
 import com.mediasoft.warehouse.dto.ViewOrderDto;
+import com.mediasoft.warehouse.dto.ViewOrderFromMapDto;
 import com.mediasoft.warehouse.dto.ViewOrderProductDto;
+import com.mediasoft.warehouse.error.exception.ForbiddenException;
 import com.mediasoft.warehouse.error.exception.IncorrectOrderStatusException;
 import com.mediasoft.warehouse.error.exception.NotEnoughProductException;
 import com.mediasoft.warehouse.error.exception.OrderNotFoundException;
@@ -17,16 +20,21 @@ import com.mediasoft.warehouse.model.OrderProductKey;
 import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.enums.OrderStatus;
 import com.mediasoft.warehouse.repository.OrderRepository;
+import com.mediasoft.warehouse.service.account.AccountServiceClient;
+import com.mediasoft.warehouse.service.crm.CrmServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -40,6 +48,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CustomerService customerService;
     private final ProductService productService;
+    private final AccountServiceClient accountServiceClient;
+    private final CrmServiceClient crmServiceClient;
 
     /**
      * Получить заказ по идентификатору.
@@ -206,6 +216,51 @@ public class OrderServiceImpl implements OrderService {
             productService.updateProduct(product.getId(), new SaveProductDto(product));
         });
         orderRepository.save(order);
+    }
+
+    /**
+     * Получает данные о заказах по товарам.
+     *
+     * @return Объект {@link Map}, содержащий информацию о заказах по ID товаров.
+     */
+    @Transactional
+    public Map<UUID, List<ViewOrderFromMapDto>> getOrdersGroupedByProduct() throws ExecutionException, InterruptedException {
+        // Получаем все заказы в указанных статусах
+        List<Order> orders = orderRepository.findByStatusIn(List.of(OrderStatus.CREATED, OrderStatus.CONFIRMED));
+
+        // Собираем логины покупателей
+        List<String> logins = orders.stream()
+                .map(order -> order.getCustomer().getLogin())
+                .distinct()
+                .collect(Collectors.toList());
+
+        // Делаем асинхронные запросы к внешним сервисам
+        CompletableFuture<Map<String, String>> accountsFuture = accountServiceClient.getAccounts(logins);
+        CompletableFuture<Map<String, String>> crmsFuture = crmServiceClient.getCrms(logins);
+
+        return CompletableFuture.allOf(accountsFuture, crmsFuture)
+                .thenApply(voidResult -> orders.stream()
+                        .flatMap(order -> order.getProducts().stream()
+                                .map(productId -> new AbstractMap.SimpleEntry<>(productId, order)))
+                        .collect(Collectors.groupingBy(
+                                entry -> entry.getKey().getProduct().getId(),
+                                Collectors.mapping(entry -> {
+                                    Order order = entry.getValue();
+                                    ViewCustomerFromOrderDto customerDto = new ViewCustomerFromOrderDto(
+                                            order.getCustomer().getId(),
+                                            accountsFuture.join().get(order.getCustomer().getLogin()),
+                                            order.getCustomer().getEmail(),
+                                            crmsFuture.join().get(order.getCustomer().getLogin())
+                                    );
+                                    return new ViewOrderFromMapDto(
+                                            order.getId(),
+                                            customerDto,
+                                            order.getStatus(),
+                                            order.getDeliveryAddress(),
+                                            entry.getKey().getQuantity()
+                                    );
+                                }, Collectors.toList())
+                        ))).get();
     }
 
     /**

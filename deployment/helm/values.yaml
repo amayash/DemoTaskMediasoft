@@ -1,0 +1,18 @@
+secret:
+  name: demotaskmediasoft-secret
+deployment:
+  app:
+    profile: prod
+  db:
+    image: postgres:latest
+    port: 5432
+    replicas: 1
+service:
+  db:
+    name: postgresql-demotaskmediasoft-postgres-service
+    host: "postgresql-demotaskmediasoft-postgres-service"
+    type: ClusterIP
+    port: 5432
+    sport: "5432"
+    dbname: test
+    dbschema: public

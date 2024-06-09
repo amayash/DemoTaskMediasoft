@@ -2,6 +2,7 @@ package com.mediasoft.warehouse.repository;
 
 import com.mediasoft.warehouse.dto.ViewOrderProductDto;
 import com.mediasoft.warehouse.model.Order;
+import com.mediasoft.warehouse.model.enums.OrderStatus;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -56,4 +57,13 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             "FROM OrderProduct op " +
             "WHERE op.order.id = :orderId")
     List<ViewOrderProductDto> findViewOrderProductsByOrderId(UUID orderId);
+
+    /**
+     * Получить заказы в указанных статусах.
+     *
+     * @param statuses Статусы заказов.
+     * @return Заказы в указанных статусах.
+     */
+    @EntityGraph(attributePaths = {"customer", "products.product"})
+    List<Order> findByStatusIn(List<OrderStatus> statuses);
 }
