@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 public class AccountServiceProperties {
     private String host;
-    private AccountServiceProperties.AccountServiceMethodsProperties methods;
-    private CurrencyServiceProperties.MockProperties mock;
+    private AccountServiceMethodsProperties methods;
+    private MockProperties mock;
 
     /**
      * Настройки конфигурации для методов сервиса счетов.

@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 public class CrmServiceProperties {
     private String host;
-    private CrmServiceProperties.CrmServiceMethodsProperties methods;
-    private CurrencyServiceProperties.MockProperties mock;
+    private CrmServiceMethodsProperties methods;
+    private MockProperties mock;
 
     /**
      * Настройки конфигурации для методов сервиса ИНН.
