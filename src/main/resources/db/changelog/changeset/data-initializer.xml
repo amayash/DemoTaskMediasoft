@@ -1,0 +1,22 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <changeSet id="generate-and-insert-products" author="darya">
+        <sql>
+            INSERT INTO products (id, name, article, description, category, price, quantity, last_quantity_change_date, created_date)
+            SELECT
+            gen_random_uuid(),
+            'Product ' || s,
+            'Article' || s,
+            'Description of Product ' || s,
+            'ELECTRONICS',
+            100.0,
+            50,
+            NOW(),
+            NOW()
+            FROM generate_series(1, 1000000) s;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,16 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <changeSet id="add-column-is-available-to-products" author="darya">
+        <addColumn tableName="products">
+            <column name="is_available" type="boolean"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="set-default-is-available-value" author="darya">
+        <sql>UPDATE products SET is_available = true</sql>
+    </changeSet>
+    <changeSet id="add-not-null-constraint-to-is-available" author="darya">
+        <sql>ALTER TABLE products ALTER COLUMN is_available SET NOT NULL</sql>
+    </changeSet>
+</databaseChangeLog>

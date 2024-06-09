@@ -1,0 +1,48 @@
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+  datasource:
+    url: ${dbUrl:jdbc:postgresql://localhost:5432/Warehouse}
+    username: ${dbUsername:role_for_spring}
+    password: ${dbPassword}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+app:
+  scheduling:
+    mode: none
+    period: 60000 #ms
+    priceIncreasePercentage: 10.1
+    optimization:
+      spring-batch: false
+  rest:
+    currency-service:
+      host: http://localhost:8081
+      methods:
+        get-currency: /currencies
+      mock:
+        enabled: true
+    account-service:
+      host: http://localhost:8081
+      methods:
+        get-account: /accounts
+      mock:
+        enabled: true
+    crm-service:
+      host: http://localhost:8081
+      methods:
+        get-crm: /crm
+      mock:
+        enabled: true

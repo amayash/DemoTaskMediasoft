@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: myspace
+  name: demo-service
+spec:
+  selector:
+    app: demotaskmediasoft-app #должно соответствовать лейблу пода
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8081 #порт сервиса
+      targetPort: 8080 #порт пода (порт, который открыт для контейнера)
+      # nodePort: 30181
+    - protocol: TCP
+      name: actuator
+      port: 9091 #порт сервиса
+      targetPort: 9090 #порт пода (порт, который открыт для контейнера)
+  type: ClusterIP
+#  clusterIP: None #взамен type: ClusterIp

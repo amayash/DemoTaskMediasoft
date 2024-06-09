@@ -1,0 +1,36 @@
+spring:
+  liquibase:
+    enabled: false
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+      dialect: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+
+app:
+  rest:
+    currency-service:
+      host: http://localhost:8081
+      methods:
+        get-currency: /currencies
+      mock:
+        enabled: true
+    account-service:
+      host: http://localhost:8081
+      methods:
+        get-account: /accounts
+      mock:
+        enabled: false
+    crm-service:
+      host: http://localhost:8081
+      methods:
+        get-crm: /crm
+      mock:
+        enabled: false
