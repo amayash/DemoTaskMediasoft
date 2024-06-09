@@ -19,4 +19,26 @@ public class RestConfigurationProperties {
     public CurrencyServiceProperties currencyServiceProperties() {
         return new CurrencyServiceProperties();
     }
+
+    /**
+     * Создает бин для настроек сервиса счетов.
+     *
+     * @return Настройки сервиса счетов.
+     */
+    @Bean
+    @ConfigurationProperties(prefix = "app.rest.account-service")
+    public AccountServiceProperties accountServiceProperties() {
+        return new AccountServiceProperties();
+    }
+
+    /**
+     * Создает бин для настроек сервиса ИНН.
+     *
+     * @return Настройки сервиса ИНН.
+     */
+    @Bean
+    @ConfigurationProperties(prefix = "app.rest.crm-service")
+    public CrmServiceProperties crmServiceProperties() {
+        return new CrmServiceProperties();
+    }
 }

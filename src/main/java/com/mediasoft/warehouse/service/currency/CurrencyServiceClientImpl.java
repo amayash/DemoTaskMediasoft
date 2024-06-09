@@ -1,4 +1,4 @@
-package com.mediasoft.warehouse.service;
+package com.mediasoft.warehouse.service.currency;
 
 import com.mediasoft.warehouse.configuration.properties.RestConfigurationProperties;
 import com.mediasoft.warehouse.dto.ViewCurrenciesDto;
@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 @Component
 public class CurrencyServiceClientImpl implements CurrencyServiceClient {
-    private final WebClient webClient;
+    private final WebClient currencyServiceWebClient;
     private final RestConfigurationProperties properties;
 
     /**
@@ -23,7 +23,7 @@ public class CurrencyServiceClientImpl implements CurrencyServiceClient {
      */
     @Cacheable(value = "currencies", unless = "#result == null")
     public ViewCurrenciesDto getCurrencies() {
-        return webClient
+        return currencyServiceWebClient
                 .get()
                 .uri(properties.currencyServiceProperties().getMethods().getGetCurrency())
                 .retrieve()

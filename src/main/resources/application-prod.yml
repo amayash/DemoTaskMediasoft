@@ -3,8 +3,8 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.xml
   datasource:
-    url: jdbc:postgresql://localhost:5432/Warehouse
-    username: role_for_spring
+    url: ${dbUrl:jdbc:postgresql://localhost:5432/Warehouse}
+    username: ${dbUsername:role_for_spring}
     password: ${dbPassword}
     driver-class-name: org.postgresql.Driver
   jpa:
@@ -32,5 +32,17 @@ app:
       host: http://localhost:8081
       methods:
         get-currency: /currencies
+      mock:
+        enabled: true
+    account-service:
+      host: http://localhost:8081
+      methods:
+        get-account: /accounts
+      mock:
+        enabled: true
+    crm-service:
+      host: http://localhost:8081
+      methods:
+        get-crm: /crm
       mock:
         enabled: true

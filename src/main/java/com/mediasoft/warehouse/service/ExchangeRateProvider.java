@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediasoft.warehouse.dto.ViewCurrenciesDto;
 import com.mediasoft.warehouse.model.enums.Currency;
+import com.mediasoft.warehouse.service.currency.CurrencyServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.lang.Nullable;

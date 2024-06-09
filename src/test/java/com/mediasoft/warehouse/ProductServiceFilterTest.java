@@ -55,6 +55,7 @@ public class ProductServiceFilterTest {
         product.setCategory(ProductCategory.BOOKS);
         product.setPrice(BigDecimal.valueOf(price));
         product.setQuantity(count);
+        product.setIsAvailable(true);
         return product;
     }
 
@@ -63,7 +64,7 @@ public class ProductServiceFilterTest {
      */
     @BeforeAll
     void init() {
-        productService = new ProductService(productRepository);
+        productService = new ProductService(productRepository, null, null);
         productRepository.save(createProduct(1, 500, 50));
         productRepository.save(createProduct(2, 600, 60));
         productRepository.save(createProduct(3, 650, 70, "Product"));
