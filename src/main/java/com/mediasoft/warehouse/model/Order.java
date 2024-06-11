@@ -70,4 +70,7 @@ public class Order {
     @JoinColumn(name = "customer_id", nullable = false)
     @Fetch(FetchMode.JOIN)
     private Customer customer;
+
+    @Column(name = "business_key")
+    private String businessKey;
 }
