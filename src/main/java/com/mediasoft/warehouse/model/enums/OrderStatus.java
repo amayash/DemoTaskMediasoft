@@ -5,6 +5,7 @@ package com.mediasoft.warehouse.model.enums;
  */
 public enum OrderStatus {
     CREATED,
+    PROCESSING,
     CONFIRMED,
     CANCELLED,
     DONE,

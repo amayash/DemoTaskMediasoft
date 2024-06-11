@@ -8,6 +8,7 @@ import com.mediasoft.warehouse.dto.ViewOrderFromMapDto;
 import com.mediasoft.warehouse.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -46,7 +47,8 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/confirm")
-    public void confirm(@PathVariable UUID id) {
+    public String confirm(@PathVariable UUID id) {
+        return orderService.confirmOrder(id);
     }
 
     /**

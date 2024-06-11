@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = OrderUpdateEventData.class, name = "UPDATE_ORDER"),
         @JsonSubTypes.Type(value = OrderDeleteEventData.class, name = "DELETE_ORDER"),
         @JsonSubTypes.Type(value = OrderUpdateStatusEventData.class, name = "UPDATE_ORDER_STATUS"),
+        @JsonSubTypes.Type(value = OrderCheckBusinessKeyEventData.class, name = "CHECK_ORDER_BUSINESS_KEY"),
 })
 public interface KafkaEvent {
     /**

@@ -23,6 +23,7 @@ import com.mediasoft.warehouse.service.account.AccountServiceClient;
 import com.mediasoft.warehouse.service.crm.CrmServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +50,8 @@ public class OrderServiceImpl implements OrderService {
     private final ProductService productService;
     private final AccountServiceClient accountServiceClient;
     private final CrmServiceClient crmServiceClient;
+    private final RuntimeService runtimeService;
+    private static final String PROCESS_KEY = "DemoCamundaProcessKey";
 
     /**
      * Получить заказ по идентификатору.
@@ -128,6 +131,35 @@ public class OrderServiceImpl implements OrderService {
             product.setQuantity(currentProductCapacity - quantity);
         });
         return orderRepository.save(order);
+    }
+
+    @Transactional
+    public String confirmOrder(UUID orderId) {
+        updateOrderStatus(orderId, new SaveOrderStatusDto(OrderStatus.PROCESSING));
+        Order order = getOrderById(orderId, null);
+        List<String> userLogin = List.of(order.getCustomer().getLogin());
+
+        return runtimeService
+                .createProcessInstanceByKey(PROCESS_KEY)
+                .businessKey(UUID.randomUUID().toString())
+                .setVariable("orderDeliveryAddress", order.getDeliveryAddress())
+                .setVariable("customerCRM", crmServiceClient.getCrms(userLogin))
+                .setVariable("customerAccountNumber", accountServiceClient.getAccounts(userLogin))
+                .setVariable("orderPrice", order.getProducts()
+                        .stream()
+                        .map(product -> product.getFrozenPrice().multiply(BigDecimal.valueOf(product.getQuantity())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add))
+                .setVariable("customerLogin", userLogin.getFirst())
+                .execute()
+                .getBusinessKey();
+    }
+
+    public void checkOrderBusinessKey(String businessKey, String login, String CRM) {
+        boolean incorrectOrderBusinessKey = Math.random() % 3 == 0;
+        runtimeService.createMessageCorrelation("compliance")
+                .processInstanceBusinessKey(businessKey)
+                .setVariable("incorrectOrderBusinessKey", incorrectOrderBusinessKey)
+                .correlate();
     }
 
     /**
