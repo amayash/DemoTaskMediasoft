@@ -1,5 +1,6 @@
 package com.mediasoft.warehouse.service;
 
+import com.mediasoft.warehouse.dto.ConfirmOrderDto;
 import com.exception.handler.error.exception.ForbiddenException;
 import com.mediasoft.warehouse.dto.SaveOrderDto;
 import com.mediasoft.warehouse.dto.SaveOrderProductDto;
@@ -20,6 +21,7 @@ import com.mediasoft.warehouse.model.Product;
 import com.mediasoft.warehouse.model.enums.OrderStatus;
 import com.mediasoft.warehouse.repository.OrderRepository;
 import com.mediasoft.warehouse.service.account.AccountServiceClient;
+import com.mediasoft.warehouse.service.camunda.CamundaServiceClient;
 import com.mediasoft.warehouse.service.crm.CrmServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +52,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductService productService;
     private final AccountServiceClient accountServiceClient;
     private final CrmServiceClient crmServiceClient;
+    private final CamundaServiceClient camundaServiceClient;
 
     /**
      * Получить заказ по идентификатору.
@@ -131,6 +135,42 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
+     * Подтверждает заказ по его уникальному идентификатору.
+     *
+     * @param orderId Идентификатор заказа.
+     * @return Ключ бизнес-процесса для подтвержденного заказа.
+     * @throws ExecutionException Если возникает ошибка при получении данных о клиенте.
+     * @throws InterruptedException Если поток был прерван при ожидании завершения асинхронных задач.
+     */
+    @Transactional
+    public String confirmOrder(UUID orderId) throws ExecutionException, InterruptedException {
+        Order order = getOrderById(orderId, null);
+        updateOrderStatus(orderId, new SaveOrderStatusDto(OrderStatus.PROCESSING));
+        List<String> userLogins = List.of(order.getCustomer().getLogin());
+
+        // Запускаем асинхронные задачи параллельно
+        CompletableFuture<Map<String, String>> customerCRMFut = crmServiceClient.getCrms(userLogins);
+        CompletableFuture<Map<String, String>> customerAccountNumberFut = accountServiceClient.getAccounts(userLogins);
+
+        // Используем CompletableFuture.allOf и join для ожидания завершения всех задач
+        CompletableFuture.allOf(customerCRMFut, customerAccountNumberFut).join();
+        String customerLogin = userLogins.get(0);
+
+        String bKey = camundaServiceClient.confirmOrder(new ConfirmOrderDto(
+                orderId,
+                order.getDeliveryAddress(),
+                customerCRMFut.get().get(customerLogin),
+                customerAccountNumberFut.get().get(customerLogin),
+                order.getProducts().stream()
+                        .map(product -> product.getFrozenPrice().multiply(BigDecimal.valueOf(product.getQuantity())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add),
+                customerLogin));
+        order.setBusinessKey(bKey);
+        orderRepository.save(order);
+        return bKey;
+    }
+
+    /**
      * Обновить информацию о заказе.
      *
      * @param orderId             Идентификатор заказа.
@@ -192,6 +232,8 @@ public class OrderServiceImpl implements OrderService {
     public void updateOrderStatus(UUID orderId, SaveOrderStatusDto status) {
         Order order = getOrderById(orderId, null);
         order.setStatus(status.getStatus());
+        if (status.getStatus() == OrderStatus.CONFIRMED)
+            order.setDeliveryDate(LocalDate.now().plusDays(7));
         orderRepository.save(order);
     }
 

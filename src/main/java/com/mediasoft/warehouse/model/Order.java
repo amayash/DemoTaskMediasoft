@@ -1,11 +1,28 @@
 package com.mediasoft.warehouse.model;
 
 import com.mediasoft.warehouse.model.enums.OrderStatus;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,5 +71,19 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     @Fetch(FetchMode.JOIN)
+    @NonNull
     private Customer customer;
+
+    /**
+     * Бизнес-ключ заказа.
+     */
+    @Column(name = "business_key")
+    private String businessKey;
+
+    /**
+     * Дата доставки заказа.
+     */
+    @Column(name = "delivery_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate deliveryDate;
 }

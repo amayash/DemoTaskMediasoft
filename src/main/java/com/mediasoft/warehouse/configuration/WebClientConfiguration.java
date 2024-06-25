@@ -85,4 +85,25 @@ public class WebClientConfiguration {
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
                 .build();
     }
+
+    /**
+     * Создает WebClient с таймаутом подключения и чтения для camundaService.
+     *
+     * @return Объект WebClient с настроенными параметрами таймаута.
+     */
+    @Bean
+    public WebClient camundaServiceWebClient() {
+        final var tcpClient = TcpClient
+                .create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TIMEOUT)
+                .doOnConnected(connection -> {
+                    connection.addHandlerLast(new ReadTimeoutHandler(TIMEOUT, TimeUnit.MILLISECONDS));
+                    connection.addHandlerLast(new WriteTimeoutHandler(TIMEOUT, TimeUnit.MILLISECONDS));
+                });
+
+        return WebClient.builder()
+                .baseUrl(properties.camundaServiceProperties().getHost())
+                .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
+                .build();
+    }
 }

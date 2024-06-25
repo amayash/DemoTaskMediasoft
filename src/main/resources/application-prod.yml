@@ -1,4 +1,11 @@
 spring:
+  application:
+    name: demo-mediasoft
+    main:
+      banner-mode: off
+    jackson:
+      deserialization:
+        fail-on-unknown-properties: false
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.xml
@@ -19,6 +26,15 @@ spring:
       enabled: false
     jdbc:
       initialize-schema: always
+
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+    firstName: demo
+  generic-properties:
+    properties:
+      enforceHistoryTimeToLive: false
 
 app:
   scheduling:
@@ -46,3 +62,9 @@ app:
         get-crm: /crm
       mock:
         enabled: true
+    camunda-service:
+      host: http://localhost:8082
+      methods:
+        confirm-order: /confirm-order
+      mock:
+        enabled: false

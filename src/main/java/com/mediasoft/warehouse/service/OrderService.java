@@ -20,6 +20,8 @@ public interface OrderService {
 
     Order createOrder(SaveOrderDto saveOrderDto, Long customerId);
 
+    String confirmOrder(UUID uuid) throws ExecutionException, InterruptedException;
+
     Order updateOrder(UUID orderId, List<SaveOrderProductDto> saveOrderProductDto, Long customerIdHeader);
 
     void updateOrderStatus(UUID orderId, SaveOrderStatusDto status);
