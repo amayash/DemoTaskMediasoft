@@ -42,27 +42,21 @@ public class FileServiceImpl implements FileService {
      * @throws IOException если возникает ошибка ввода-вывода
      */
     @Transactional
-    public String uploadFile(MultipartFile file, UUID productId) throws IOException {
-        Path tempFile = Files.createTempFile("upload-", file.getOriginalFilename());
-        UUID key = UUID.randomUUID();
-        try {
-            file.transferTo(tempFile.toFile());
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.addUserMetadata("filename", file.getOriginalFilename());
-            PutObjectRequest request = new PutObjectRequest(
-                    awsConfigurationProperties.getBucketName(),
-                    key.toString(),
-                    tempFile.toFile()
-            ).withMetadata(metadata);
-            s3Client.putObject(request);
+    public UUID uploadFile(MultipartFile file, UUID productId) throws IOException {
+        final UUID key = UUID.randomUUID();
+        final ObjectMetadata metadata = new ObjectMetadata();
+        metadata.addUserMetadata("filename", file.getOriginalFilename());
+        final PutObjectRequest request = new PutObjectRequest(
+                awsConfigurationProperties.getBucketName(),
+                key.toString(),
+                file.getInputStream(), metadata
+        );
+        s3Client.putObject(request);
 
-            productService.getProductById(productId);
-            ProductImage productImage = new ProductImage(key, productId);
-            productImageRepository.save(productImage);
-        } finally {
-            Files.delete(tempFile);
-        }
-        return key.toString();
+        productService.getProductById(productId);
+        final ProductImage productImage = new ProductImage(key, productId);
+        productImageRepository.save(productImage);
+        return key;
     }
 
     /**
@@ -74,15 +68,15 @@ public class FileServiceImpl implements FileService {
      */
     @Transactional(readOnly = true)
     public void downloadFiles(UUID productId, OutputStream outputStream) throws IOException {
-        List<ProductImage> images = productImageRepository.findByProductId(productId);
-        Set<String> usedFileNames = new HashSet<>();
+        final List<ProductImage> images = productImageRepository.findByProductId(productId);
+        final Set<String> usedFileNames = new HashSet<>();
 
-        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
-            for (ProductImage image : images) {
-                UUID key = image.getS3_key();
-                S3Object s3Object = s3Client.getObject(new GetObjectRequest(awsConfigurationProperties.getBucketName(), key.toString()));
+        try (final ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+            for (final ProductImage image : images) {
+                final UUID key = image.getS3_key();
+                final S3Object s3Object = s3Client.getObject(new GetObjectRequest(awsConfigurationProperties.getBucketName(), key.toString()));
 
-                try (InputStream inputStream = s3Object.getObjectContent()) {
+                try (final InputStream inputStream = s3Object.getObjectContent()) {
                     String fileName = s3Object.getObjectMetadata().getUserMetaDataOf("filename");
                     if (fileName == null) {
                         fileName = key.toString();
@@ -90,7 +84,7 @@ public class FileServiceImpl implements FileService {
 
                     fileName = getUniqueFileName(fileName, usedFileNames);
 
-                    ZipEntry zipEntry = new ZipEntry(fileName);
+                    final ZipEntry zipEntry = new ZipEntry(fileName);
                     zos.putNextEntry(zipEntry);
 
                     byte[] buffer = new byte[1024];
@@ -108,8 +102,8 @@ public class FileServiceImpl implements FileService {
     /**
      * Генерирует уникальное имя файла, добавляя число, если такое имя уже существует в наборе.
      *
-     * @param fileName       исходное имя файла
-     * @param usedFileNames  набор уже использованных имен файлов
+     * @param fileName      исходное имя файла
+     * @param usedFileNames набор уже использованных имен файлов
      * @return уникальное имя файла
      */
     private String getUniqueFileName(String fileName, Set<String> usedFileNames) {

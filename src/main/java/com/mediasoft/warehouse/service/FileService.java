@@ -10,6 +10,6 @@ import java.util.UUID;
  * Интерфейс для сервиса управления файлами.
  */
 public interface FileService {
-    String uploadFile(MultipartFile file, UUID productId) throws IOException;
+    UUID uploadFile(MultipartFile file, UUID productId) throws IOException;
     void downloadFiles(UUID productId, OutputStream outputStream) throws IOException;
 }

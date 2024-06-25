@@ -3,6 +3,11 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
     <changeSet id="create-product-images-table" author="darya">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_images"/>
+            </not>
+        </preConditions>
         <createTable tableName="product_images">
             <column name="product_id" type="UUID">
                 <constraints nullable="false"/>

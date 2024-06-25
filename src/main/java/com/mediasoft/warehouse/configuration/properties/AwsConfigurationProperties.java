@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 public class AwsConfigurationProperties {
-    String path;
-    String accessKeyId;
-    String secretAccessKey;
-    String region;
-    String bucketName;
+    private String path;
+    private String accessKeyId;
+    private String secretAccessKey;
+    private String region;
+    private String bucketName;
 }
