@@ -20,7 +20,9 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -69,8 +71,19 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     @Fetch(FetchMode.JOIN)
+    @NonNull
     private Customer customer;
 
+    /**
+     * Бизнес-ключ заказа.
+     */
     @Column(name = "business_key")
     private String businessKey;
+
+    /**
+     * Дата доставки заказа.
+     */
+    @Column(name = "delivery_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate deliveryDate;
 }

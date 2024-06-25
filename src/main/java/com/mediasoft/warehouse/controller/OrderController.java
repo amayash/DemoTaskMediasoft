@@ -8,7 +8,7 @@ import com.mediasoft.warehouse.dto.ViewOrderFromMapDto;
 import com.mediasoft.warehouse.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.camunda.bpm.engine.RuntimeService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/orders")
+@Slf4j
 public class OrderController {
     private final OrderService orderService;
 
@@ -47,7 +48,7 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/confirm")
-    public String confirm(@PathVariable UUID id) {
+    public String confirm(@PathVariable UUID id) throws ExecutionException, InterruptedException {
         return orderService.confirmOrder(id);
     }
 

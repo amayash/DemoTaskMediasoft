@@ -41,4 +41,15 @@ public class RestConfigurationProperties {
     public CrmServiceProperties crmServiceProperties() {
         return new CrmServiceProperties();
     }
+
+    /**
+     * Создает бин для настроек сервиса камунды.
+     *
+     * @return Настройки сервиса камунды.
+     */
+    @Bean
+    @ConfigurationProperties(prefix = "app.rest.camunda-service")
+    public CamundaServiceProperties camundaServiceProperties() {
+        return new CamundaServiceProperties();
+    }
 }

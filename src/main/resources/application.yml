@@ -15,15 +15,6 @@ management:
 
 app:
   kafka:
-    enabled: true
+    enabled: false
     bootstrapAddress: localhost:9091
     groupId: group1
-
-camunda.bpm:
-  admin-user:
-    id: demo
-    password: demo
-    firstname: demo
-  generic-properties:
-    properties:
-      enforceHistoryTimeToLive: false

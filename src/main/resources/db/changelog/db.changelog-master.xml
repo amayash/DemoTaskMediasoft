@@ -9,4 +9,6 @@
     <include file="/db/changelog/changeset/create-orders-table.xml"/>
     <include file="/db/changelog/changeset/create-order-product-table.xml"/>
     <include file="/db/changelog/changeset/rename-tables-to-singular.xml"/>
+    <include file="/db/changelog/changeset/add-column-business-key-to-orders.xml"/>
+    <include file="/db/changelog/changeset/add-column-delivery-date-to-orders.xml"/>
 </databaseChangeLog>

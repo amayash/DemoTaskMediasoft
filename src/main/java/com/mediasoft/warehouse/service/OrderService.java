@@ -20,9 +20,7 @@ public interface OrderService {
 
     Order createOrder(SaveOrderDto saveOrderDto, Long customerId);
 
-    String confirmOrder(UUID uuid);
-
-    void checkOrderBusinessKey(String businessKey, String login, String CRM);
+    String confirmOrder(UUID uuid) throws ExecutionException, InterruptedException;
 
     Order updateOrder(UUID orderId, List<SaveOrderProductDto> saveOrderProductDto, Long customerIdHeader);
 
