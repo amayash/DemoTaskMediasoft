@@ -1,8 +1,18 @@
+server:
+  port: 8081
+  
 spring:
   profiles:
     active: ${springProfile:prod}
   cache:
     type: caffeine
+
+aws:
+  path: ${path}
+  accessKeyId: ${accessKeyId}
+  secretAccessKey: ${secretAccessKey}
+  region: ${region}
+  bucketName: ${bucketName}
 
 management:
   server:
@@ -15,6 +25,7 @@ management:
 
 app:
   kafka:
-    enabled: true
+    enabled: false
     bootstrapAddress: localhost:9091
     groupId: group1
+

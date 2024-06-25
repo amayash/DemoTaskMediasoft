@@ -13,6 +13,7 @@ java {
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 }
 
 dependencies {
@@ -25,6 +26,8 @@ dependencies {
 	implementation 'org.junit.vintage:junit-vintage-engine'
 	implementation 'org.liquibase:liquibase-core'
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.734'
+	implementation 'ru.amayash.exception.handler:exception-handler-spring-boot-starter:1.0.0'
 
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
