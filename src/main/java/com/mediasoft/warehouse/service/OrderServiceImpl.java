@@ -9,7 +9,6 @@ import com.mediasoft.warehouse.dto.ViewCustomerFromOrderDto;
 import com.mediasoft.warehouse.dto.ViewOrderDto;
 import com.mediasoft.warehouse.dto.ViewOrderFromMapDto;
 import com.mediasoft.warehouse.dto.ViewOrderProductDto;
-import com.mediasoft.warehouse.error.exception.ForbiddenException;
 import com.mediasoft.warehouse.error.exception.IncorrectOrderStatusException;
 import com.mediasoft.warehouse.error.exception.NotEnoughProductException;
 import com.mediasoft.warehouse.error.exception.OrderNotFoundException;
