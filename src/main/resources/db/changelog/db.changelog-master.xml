@@ -11,4 +11,5 @@
     <include file="/db/changelog/changeset/rename-tables-to-singular.xml"/>
     <include file="/db/changelog/changeset/add-column-business-key-to-orders.xml"/>
     <include file="/db/changelog/changeset/add-column-delivery-date-to-orders.xml"/>
+    <include file="/db/changelog/changeset/create-product-images-table.xml"/>
 </databaseChangeLog>
